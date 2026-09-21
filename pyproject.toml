@@ -1,0 +1,38 @@
+[project]
+name = "clipforge-workspace"
+version = "0.2.0"
+description = "ClipForge AI workspace root"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.6.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "packages/python-core",
+    "apps/api",
+    "apps/worker",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["packages/python-core", "apps/api", "apps/worker"]
+
+[dependency-groups]
+dev = [
+    "jsonschema>=4.26.0",
+]
+

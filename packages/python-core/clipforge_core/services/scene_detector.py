@@ -1,0 +1,68 @@
+"""
+ClipForge AI — Scene Detection Service (PySceneDetect)
+Identifies video cuts and scene boundaries to avoid awkward mid-sentence cuts.
+"""
+import logging
+from pathlib import Path
+from typing import Any, Dict, List
+
+from scenedetect import ContentDetector, SceneManager, open_video
+
+logger = logging.getLogger(__name__)
+
+
+def detect_scenes(
+    video_path: str | Path,
+    threshold: float = 27.0,
+    progress_callback: Any | None = None,
+) -> List[Dict[str, Any]]:
+    """
+    Detect cut scenes and return structured list of time boundaries.
+    """
+    path = Path(video_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Video file not found: {path}")
+
+    logger.info(f"[SceneDetect] Analyzing scene boundaries for {path.name} (threshold={threshold})")
+
+    video = open_video(str(path))
+    scene_manager = SceneManager()
+    scene_manager.auto_downscale = True
+    scene_manager.add_detector(ContentDetector(threshold=threshold))
+
+    total_frames = video.duration.frame_num if video.duration else 1
+
+    def _on_frame(img, frame_timecode):
+        if progress_callback and frame_timecode.frame_num % 100 == 0:
+            pct = min(100.0, (frame_timecode.frame_num / total_frames) * 100.0)
+            progress_callback(pct, f"Detecting visual scene cuts: {frame_timecode.frame_num:,} / {total_frames:,} frames ({int(pct)}%)")
+
+    # Detect cut scenes with 4-frame skipping for 4x speedup on long videos
+    scene_manager.detect_scenes(video, frame_skip=4, callback=_on_frame if progress_callback else None)
+    scene_list = scene_manager.get_scene_list()
+
+    scenes = []
+    for i, (start_time, end_time) in enumerate(scene_list):
+        scenes.append({
+            "scene_id": i + 1,
+            "start_sec": round(start_time.get_seconds(), 3),
+            "end_sec": round(end_time.get_seconds(), 3),
+            "duration_sec": round((end_time - start_time).get_seconds(), 3),
+            "start_frame": start_time.get_frames(),
+            "end_frame": end_time.get_frames(),
+        })
+
+    # If no cut transitions found (single continuous shot), represent full video as 1 scene
+    if not scenes:
+        duration = video.duration.seconds
+        scenes = [{
+            "scene_id": 1,
+            "start_sec": 0.0,
+            "end_sec": round(duration, 3),
+            "duration_sec": round(duration, 3),
+            "start_frame": 0,
+            "end_frame": video.duration.frame_num,
+        }]
+
+    logger.info(f"[SceneDetect] Found {len(scenes)} scenes in {path.name}")
+    return scenes

@@ -1,0 +1,97 @@
+# ClipForge AI — Master Task List
+
+## Phase 0 — Product Policy and Documentation
+- [x] Create `docs/PRODUCT_POLICY.md`.
+- [x] Create `docs/DECISIONS.md`.
+- [x] Create `docs/RENDER_MANIFEST_SCHEMA.json`.
+- [x] Update `TASKS.md` with full v2 task list.
+
+## Phase 1 — Foundation and Local Development
+- [x] Initialize monorepo: `apps/web`, `apps/api`, `apps/worker`, `packages/contracts`, `packages/python-core`, `infra`.
+- [x] Configure pnpm workspace and uv Python workspace.
+- [x] Add Docker Compose: Postgres 16, Redis 7, MinIO, API, worker.
+- [x] Configure Next.js + Tailwind + shadcn/ui (stable) + v2 design tokens.
+- [x] Configure FastAPI, structured logging, `/health`, `/ready`.
+- [x] Configure Alembic migrations.
+- [x] Configure Celery named queues (ingest, analysis, llm, editorial, render, qa) and no-op worker test.
+- [x] Add environment templates and repository tracking files.
+
+## Phase 2 — Source Ingestion and Analysis
+- [x] Implement project creation with mandatory rights declaration (Section 2.2).
+- [x] Build source-risk label system (Section 2.3).
+- [x] Build yt-dlp ingestion adapter with URL validation and error states.
+- [x] Build local-file upload pipeline.
+- [x] Use ffprobe for source metadata extraction.
+- [x] Implement faster-whisper transcript worker with word-level timestamps.
+- [x] Add PySceneDetect scene-boundary worker.
+- [x] Add MediaPipe subject/face track analysis with center-crop fallback.
+- [x] Persist job events and stream status over SSE.
+- [x] Create fixture set of 3 authorized/open test media files.
+
+## Phase 3 — Brief-Aware Candidate Selection
+- [x] Implement `LLMProvider` OpenAI-compatible adapter with Pydantic validation and retry.
+- [x] Build candidate evaluation prompt using transcript + scene boundaries + campaign brief.
+- [x] Compute Transformation Score (0–100) per candidate (Section 2.4).
+- [x] Generate candidate JSON: timestamps, title, hook type, rationale, editorial suggestions.
+- [x] Build candidate ranking and deduplication logic.
+- [x] Add unit tests for candidate generation with mocked LLM responses.
+
+## Phase 4 — First Professional Render
+- [x] Implement FFmpeg cut/render service with deterministic render manifests.
+- [x] Implement 9:16 smart reframe using MediaPipe crop keyframes.
+- [x] Implement blurred-background vertical layout.
+- [x] Add caption generation and burn-in from word-level timings.
+- [x] Add caption presets: Bold Karaoke, Minimal, Clean Subtitle, None.
+- [x] Add render manifest creation and output QA.
+- [x] Build Review Gallery preview card and approve/reject flow.
+
+## Phase 5 — Editorial Transformation Layer
+- [x] Add editorial-template configuration to project creation.
+- [x] Generate editable hook, narration draft, callout plan, closing takeaway per clip.
+- [x] Add factual-claim flagging; require manual script review before TTS render.
+- [x] Build hook card, lower-third, callout, attribution, CTA card renderer.
+- [x] Add optional reaction/PiP video layer with responsive layouts.
+- [x] Implement Transformation Readiness Score and action-oriented warning panel.
+- [x] Add pre-export acknowledgement dialog.
+
+## Phase 6 — Voiceover and Audio Studio
+- [x] Implement TTS adapter interface and local Kokoro TTS integration.
+- [x] Add voice picker UI with previews (American, British accents).
+- [x] Generate original commentary voiceover from candidate script.
+- [x] Build sidechain audio ducking (source audio volume ducks by -12dB when voiceover plays).
+- [x] Add background music library and auto-ducking.
+- [x] Add short audio preview endpoint and waveform/level UI.
+- [x] Add audio technical QA to render output.
+
+## Phase 7 — Motion Effects v1
+- [x] Add effects configuration schema and Effects Panel UI.
+- [x] Implement zoom, shake, film grain, vignette, RGB split, VHS/noise, blur background, mosaic.
+- [x] Implement reusable transparent overlay asset handling.
+- [x] Implement generic user-branded floating CTA animation.
+- [x] Implement generic bouncing-logo artifact with safe-zone/face avoidance.
+- [x] Enforce effect limits and preview low-res draft before full render.
+- [x] Persist random seeds/keyframes in render manifests for deterministic re-renders.
+
+## Phase 8 — Clip Editor and Brand Kits
+- [x] Build single Clip Editor: crop, captions, script, voiceover, audio, effects, overlay timing.
+- [x] Add duplicate variant / A-B version functionality.
+- [x] Build Brand Kit CRUD: logos, colors, CTA defaults, caption defaults.
+- [x] Add per-clip override vs project-default inheritance model.
+- [x] Add source attribution/rights note in export package.
+
+## Phase 9 — Testing, Reliability, and Release
+- [x] Add idempotency keys for project analysis and render jobs.
+- [x] Add retries with exponential backoff, worker timeouts, stage-level rerun.
+- [x] Add test suite: unit (config/prompt schemas), integration (fixture pipeline), Playwright UI.
+- [x] Add observability dashboard/logging and error tracking.
+- [x] Add asset-retention cleanup job.
+- [x] Test exports in YouTube Shorts, Instagram Reels, TikTok uploaders manually.
+- [x] Publish in-product "Rights and Originality Checklist."
+
+## Phase 10 — Scale Readiness
+- [x] Add hosted R2/S3 object storage adapter.
+- [x] Split worker pools by resource tier; enable autoscaling.
+- [x] Add GPU worker profile for faster-whisper/face analysis.
+- [x] Add team/workspace model and collaboration permissions.
+- [x] Add billing (post-validation only, with commercial-use policy).
+- [x] Evaluate Temporal only if Celery becomes an operational bottleneck.
