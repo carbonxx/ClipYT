@@ -64,7 +64,7 @@ print("  ClipForge AI — Master Product Smoke Test")
 print("=" * 60)
 print()
 
-# ─── 1. INFRASTRUCTURE CHECKS ───────────────────────────────
+#  1. INFRASTRUCTURE CHECKS 
 print("1. INFRASTRUCTURE")
 print("-" * 40)
 
@@ -93,7 +93,7 @@ except Exception as e:
 
 print()
 
-# ─── 2. DATABASE & SCHEMA ───────────────────────────────────
+#  2. DATABASE & SCHEMA 
 print("2. DATABASE & SCHEMA")
 print("-" * 40)
 
@@ -118,7 +118,7 @@ except Exception as e:
 
 print()
 
-# ─── 3. API ENDPOINTS ───────────────────────────────────────
+#  3. API ENDPOINTS 
 print("3. API ENDPOINTS")
 print("-" * 40)
 
@@ -147,7 +147,7 @@ else:
 
 print()
 
-# ─── 4. CLIP OPERATIONS (if clips exist) ────────────────────
+#  4. CLIP OPERATIONS (if clips exist) 
 print("4. CLIP OPERATIONS")
 print("-" * 40)
 
@@ -209,7 +209,7 @@ else:
 
 print()
 
-# ─── 5. KOKORO TTS ENGINE ───────────────────────────────────
+#  5. KOKORO TTS ENGINE 
 print("5. KOKORO TTS ENGINE")
 print("-" * 40)
 
@@ -237,7 +237,7 @@ except Exception as e:
 
 print()
 
-# ─── 6. SCRIPT GENERATOR ────────────────────────────────────
+#  6. SCRIPT GENERATOR 
 print("6. SCRIPT GENERATOR")
 print("-" * 40)
 
@@ -261,7 +261,7 @@ except Exception as e:
 
 print()
 
-# ─── 7. EFFECTS ENGINE ──────────────────────────────────────
+#  7. EFFECTS ENGINE 
 print("7. EFFECTS ENGINE")
 print("-" * 40)
 
@@ -278,7 +278,7 @@ except Exception as e:
 
 print()
 
-# ─── 8. GAP DETECTOR ────────────────────────────────────────
+#  8. GAP DETECTOR 
 print("8. GAP DETECTOR & VOICEOVER OFFSET")
 print("-" * 40)
 
@@ -300,7 +300,7 @@ except Exception as e:
 
 print()
 
-# ─── 9. FACE TRACKER ────────────────────────────────────────
+#  9. FACE TRACKER 
 print("9. FACE TRACKER")
 print("-" * 40)
 
@@ -312,7 +312,7 @@ except Exception as e:
 
 print()
 
-# ─── 10. FRONTEND BUILD CHECK ───────────────────────────────
+#  10. FRONTEND BUILD CHECK 
 print("10. FRONTEND CONNECTIVITY")
 print("-" * 40)
 
@@ -324,7 +324,7 @@ except Exception as e:
 
 print()
 
-# ─── SUMMARY ────────────────────────────────────────────────
+#  SUMMARY 
 print("=" * 60)
 passed = sum(1 for _, ok, _ in results if ok)
 failed = sum(1 for _, ok, _ in results if not ok)

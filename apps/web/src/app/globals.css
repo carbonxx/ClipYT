@@ -47,7 +47,7 @@
   --radius-3xl: 28px;
   --radius-4xl: 32px;
 
-  /* ClipForge brand tokens from context2-upgrade.md Section 6.3 */
+  /* AutoClip brand tokens from context2-upgrade.md Section 6.3 */
   --color-cf-bg: #0B0B0F;
   --color-cf-surface: #15151C;
   --color-cf-surface-raised: #1E1E27;
@@ -63,31 +63,31 @@
 }
 
 /*
- * ClipForge AI — v2 Dark-Studio Design Tokens (Section 6.3)
+ * AutoClip — SaaS Light & Dark Themes
  */
 :root {
-  --background: #0B0B0F;
-  --surface: #15151C;
-  --surface-raised: #1E1E27;
-  --foreground: #F5F5F7;
-  --card: #15151C;
-  --card-foreground: #F5F5F7;
-  --popover: #1E1E27;
-  --popover-foreground: #F5F5F7;
-  --primary: #6366F1;
-  --primary-hover: #818CF8;
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
   --primary-foreground: #FFFFFF;
-  --secondary: #1E1E27;
-  --secondary-foreground: #F5F5F7;
-  --muted: #15151C;
-  --muted-foreground: #9CA3AF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
   --accent: #F97316;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #2B2B36;
-  --input: #2B2B36;
-  --ring: #6366F1;
-  --chart-1: #6366F1;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #3B82F6;
+  --chart-1: #3B82F6;
   --chart-2: #F97316;
   --chart-3: #22C55E;
   --chart-4: #F59E0B;
@@ -96,14 +96,55 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --sidebar: #0B0B0F;
-  --sidebar-foreground: #F5F5F7;
-  --sidebar-primary: #6366F1;
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #3B82F6;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1E1E27;
-  --sidebar-accent-foreground: #F5F5F7;
-  --sidebar-border: #2B2B36;
-  --sidebar-ring: #6366F1;
+  --sidebar-accent: #E2E8F0;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #3B82F6;
+}
+
+.dark {
+  --background: #0F172A;
+  --surface: #1E293B;
+  --surface-raised: #334155;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  --primary: #3B82F6;
+  --primary-hover: #60A5FA;
+  --primary-foreground: #FFFFFF;
+  --secondary: #334155;
+  --secondary-foreground: #F8FAFC;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #F97316;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3B82F6;
+  --chart-1: #3B82F6;
+  --chart-2: #F97316;
+  --chart-3: #22C55E;
+  --chart-4: #F59E0B;
+  --chart-5: #EF4444;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --sidebar: #0F172A;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #334155;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #334155;
+  --sidebar-ring: #3B82F6;
 }
 
 @layer base {

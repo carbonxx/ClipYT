@@ -65,7 +65,7 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight">ClipForge AI</h1>
+              <h1 className="text-base font-bold tracking-tight">AutoClip</h1>
               <p className="text-xs text-cf-muted">Automated video clipping studio</p>
             </div>
           </div>

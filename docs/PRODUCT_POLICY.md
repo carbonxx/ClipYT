@@ -1,13 +1,13 @@
-# ClipForge AI — Product Policy
+# AutoClip — Product Policy
 
-> This document defines the non-negotiable product boundaries for ClipForge AI.
+> This document defines the non-negotiable product boundaries for AutoClip.
 > Every feature, prompt, UI label, and export flow must comply with these rules.
 
 ---
 
 ## 1. Core Product Rule
 
-ClipForge AI describes its outputs as **"transformation-supporting edits"**.
+AutoClip describes its outputs as **"transformation-supporting edits"**.
 
 The product **must never** use any of the following language in UI, documentation,
 marketing, prompts, or generated metadata:
@@ -44,7 +44,7 @@ campaign brief attachment, rights-holder contact, or notes.
 
 ## 3. Source Risk Labels
 
-ClipForge may help users assess workflow risk but **must not make legal conclusions**.
+AutoClip may help users assess workflow risk but **must not make legal conclusions**.
 
 | Risk Label | Trigger | UX Behavior |
 |---|---|---|
@@ -102,7 +102,7 @@ facts, or imitation of named living voices.
 
 ## 6. Prohibited Product Behaviors
 
-ClipForge AI **must never**:
+AutoClip **must never**:
 
 - Auto-upload or auto-post to any social platform.
 - Scrape, bypass DRM, download private/paywalled content, or bypass platform access controls.
@@ -133,7 +133,7 @@ Before any clip export, the user must:
 
 1. Have a rights declaration on file for the project.
 2. Have reviewed the clip preview (video + captions + narration if applicable).
-3. Acknowledge that ClipForge does not guarantee monetization, copyright clearance, or platform acceptance.
+3. Acknowledge that AutoClip does not guarantee monetization, copyright clearance, or platform acceptance.
 
 Clips with a Transformation Readiness Score below 50 show a strong warning with
 specific recommended actions before export proceeds.
@@ -142,7 +142,7 @@ specific recommended actions before export proceeds.
 
 ## 9. Audit Trail
 
-ClipForge records the following events per project and per clip:
+AutoClip records the following events per project and per clip:
 
 - `rights_declared` — timestamp and declaration type
 - `candidate_selected` — which candidates were chosen and why

@@ -18,7 +18,8 @@ echo "[1/5] Starting Docker Infrastructure (Postgres 16, Redis 7, MinIO S3)..."
 docker compose -f infra/docker-compose.yml up -d postgres redis minio
 
 # 2. Run Database Migrations
-echo "[2/5] Running Alembic Database Migrations..."
+echo "[2/5] Waiting for PostgreSQL and running Alembic Migrations..."
+sleep 5
 uv run alembic -c packages/python-core/alembic.ini upgrade head
 
 # 3. Check Kokoro TTS Offline Models
@@ -41,7 +42,8 @@ uv run celery -A clipforge_core.celery_app worker -Q default,ingest,analysis,llm
 CELERY_PID=$!
 
 # 5. Start Next.js Web Studio
-echo "[5/5] Launching Next.js Web Studio (Port 3000)..."
+echo "[5/5] Building contracts and launching Next.js Web Studio..."
+pnpm --filter @clipforge/contracts build
 pnpm --filter @clipforge/web dev &
 WEB_PID=$!
 
@@ -50,11 +52,11 @@ echo "==================================================="
 echo "        ClipForge AI v2 is Running Successfully!"
 echo "==================================================="
 echo ""
-echo "  🌐 Web Studio:      http://localhost:3000"
-echo "  ⚡ API & Docs:      http://localhost:8000/docs"
-echo "  🗄️ PostgreSQL:      localhost:5433"
-echo "  🔴 Redis:           localhost:6379"
-echo "  🪣 MinIO S3 UI:     http://localhost:9001 (minioadmin / minioadmin)"
+echo "   Web Studio:      http://localhost:3000"
+echo "   API & Docs:      http://localhost:8000/docs"
+echo "   PostgreSQL:      localhost:5433"
+echo "   Redis:           localhost:6379"
+echo "   MinIO S3 UI:     http://localhost:9001 (minioadmin / minioadmin)"
 echo ""
 echo "  Press Ctrl+C to terminate all services."
 echo "==================================================="

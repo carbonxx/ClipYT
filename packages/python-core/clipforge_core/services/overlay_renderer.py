@@ -57,7 +57,7 @@ def create_hook_card(
     # Draw Hook Type Badge
     badge_text = hook_type.replace("_", " ").upper()
     badge_font = _get_font(28, bold=True)
-    draw.text((box_x0 + 36, box_y0 + 28), f"⚡ {badge_text}", fill=accent_color, font=badge_font)
+    draw.text((box_x0 + 36, box_y0 + 28), f" {badge_text}", fill=accent_color, font=badge_font)
 
     # Draw Title text (wrapped)
     title_font = _get_font(42, bold=True)
@@ -184,7 +184,7 @@ def create_cta_end_card(
         fill=(99, 102, 241, 255),
     )
     btn_font = _get_font(36, bold=True)
-    draw.text((box_x0 + 80, btn_y0 + 26), f"👉 {cta_action}", fill="#FFFFFF", font=btn_font)
+    draw.text((box_x0 + 80, btn_y0 + 26), f" {cta_action}", fill="#FFFFFF", font=btn_font)
 
     img.save(out_path, "PNG")
     return out_path

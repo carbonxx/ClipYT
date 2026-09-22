@@ -190,7 +190,7 @@ function ClipCard({
                 }`}
                 title="Original Transformation Score (0-100)"
               >
-                ✨ {clip.transformation_score}/100
+                 {clip.transformation_score}/100
               </span>
             )}
             {clip.score !== null && (
@@ -204,7 +204,7 @@ function ClipCard({
                 }`}
                 title="Editorial Potential (Narrative & Hook Strength)"
               >
-                🎯 {(clip.score * 100).toFixed(0)}%
+                 {(clip.score * 100).toFixed(0)}%
               </span>
             )}
           </div>
@@ -249,7 +249,7 @@ function ClipCard({
               href={`/project/${clip.project_id}/clip/${clip.id}`}
               className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-background border border-border px-3 py-2 text-xs font-medium text-cf-muted hover:text-white hover:border-primary/50 transition-colors"
             >
-              ✏️ Edit Clip
+               Edit Clip
             </Link>
             {clip.file_url && clip.review_status === "approved" && (
               <a
@@ -338,7 +338,7 @@ export default function ProjectDetailPage() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [ackRights, setAckRights] = useState(false);
   const [ackNotClearance, setAckNotClearance] = useState(false);
-  const [exportFolder, setExportFolder] = useState("C:\\ClipForgeExports");
+  const [exportFolder, setExportFolder] = useState("C:\\AutoClipExports");
 
   // Load configured export path from settings on mount
   useEffect(() => {
@@ -472,7 +472,7 @@ export default function ProjectDetailPage() {
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-              {showReclip ? "Close" : "✂️ Generate More"}
+              {showReclip ? "Close" : " Generate More"}
             </button>
           )}
           
@@ -584,7 +584,7 @@ export default function ProjectDetailPage() {
             <section className="rounded-xl bg-card border border-primary/30 p-6 space-y-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold flex items-center gap-2">
-                  <span>✂️</span> Generate More Clips
+                  <span></span> Generate More Clips
                 </h2>
                 <p className="text-xs text-cf-muted">Skips download &amp; transcription — uses existing transcript</p>
               </div>
@@ -674,9 +674,9 @@ export default function ProjectDetailPage() {
                 <label className="text-xs text-cf-muted block mb-1.5">Content Focus Mode</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "balanced", label: "🎭 Balanced", desc: "50/50 mix" },
-                    { id: "contestant_primary", label: "🎤 Contestants", desc: "≥70% acts" },
-                    { id: "judges_primary", label: "⚖️ Judges", desc: "≥70% banter" },
+                    { id: "balanced", label: " Balanced", desc: "50/50 mix" },
+                    { id: "contestant_primary", label: " Contestants", desc: "≥70% acts" },
+                    { id: "judges_primary", label: " Judges", desc: "≥70% banter" },
                   ].map((f) => (
                     <button
                       key={f.id}
@@ -700,9 +700,9 @@ export default function ProjectDetailPage() {
                 <label className="text-xs text-cf-muted block mb-1.5">Timeline Distribution Strategy</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "even_spread", label: "🌐 Temporal Bins", desc: "Full spread" },
-                    { id: "focus_window", label: "🎯 Time Window", desc: "Specific range" },
-                    { id: "top_moments", label: "⚡ Top Moments", desc: "Pure rank" },
+                    { id: "even_spread", label: " Temporal Bins", desc: "Full spread" },
+                    { id: "focus_window", label: " Time Window", desc: "Specific range" },
+                    { id: "top_moments", label: " Top Moments", desc: "Pure rank" },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -751,7 +751,7 @@ export default function ProjectDetailPage() {
               {/* Hard Duration Cap Guarantee Badge */}
               <div className="rounded-lg bg-primary/5 border border-primary/20 p-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">🛡️</span>
+                  <span className="text-sm"></span>
                   <span className="text-xs text-cf-muted">
                     Boundary-clamped: clips strictly ≤ <strong className="text-foreground">{reclipSettings.max_length_sec}s</strong>
                   </span>
@@ -798,7 +798,7 @@ export default function ProjectDetailPage() {
                           : "bg-cf-danger/15 text-cf-danger border-cf-danger/30"
                       }`}
                     >
-                      ✨ {Math.round(clips.reduce((acc, c) => acc + (c.transformation_score || 50), 0) / clips.length)}/100 Average
+                       {Math.round(clips.reduce((acc, c) => acc + (c.transformation_score || 50), 0) / clips.length)}/100 Average
                     </span>
                   </div>
                   <p className="text-xs text-cf-muted">
@@ -816,7 +816,7 @@ export default function ProjectDetailPage() {
               {/* Warning if any clip is in low transformation band */}
               {clips.some((c) => (c.transformation_score || 50) < 40) && (
                 <div className="rounded-lg bg-cf-danger/10 border border-cf-danger/30 p-3 flex items-start gap-2.5">
-                  <span className="text-cf-danger text-sm">⚠️</span>
+                  <span className="text-cf-danger text-sm"></span>
                   <p className="text-xs text-cf-danger/90 leading-relaxed">
                     <strong>High Reuse Risk:</strong> Some generated clips have a low transformation score (&lt;40). Add original voiceover commentary, editorial callouts, or adjust the in/out crop before publishing.
                   </p>
@@ -872,7 +872,7 @@ export default function ProjectDetailPage() {
           <div className="w-full max-w-lg rounded-2xl bg-card border border-border p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="space-y-1.5">
               <h3 className="text-lg font-bold flex items-center gap-2">
-                <span>🛡️</span> Export Rights &amp; Policy Confirmation
+                <span></span> Export Rights &amp; Policy Confirmation
               </h3>
               <p className="text-xs text-cf-muted leading-relaxed">
                 Before exporting {clips.filter((c) => c.review_status === "approved").length} approved clips, please review and confirm your editorial rights declaration.
@@ -900,7 +900,7 @@ export default function ProjectDetailPage() {
                   className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
                 />
                 <span className="text-xs text-cf-foreground/90 leading-snug">
-                  I acknowledge that ClipForge outputs are editorial assists and do <strong>not</strong> guarantee copyright immunity, strike clearance, or YouTube Partner Program acceptance.
+                  I acknowledge that AutoClip outputs are editorial assists and do <strong>not</strong> guarantee copyright immunity, strike clearance, or YouTube Partner Program acceptance.
                 </span>
               </label>
             </div>
@@ -917,7 +917,7 @@ export default function ProjectDetailPage() {
                 className="w-full rounded-lg bg-background border border-border px-3.5 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <p className="text-[11px] text-cf-muted mt-1.5 leading-relaxed">
-                📁 A dedicated subfolder named after this project will be automatically created inside this destination, saving all approved MP4 video clips, thumbnails, and the export manifest JSON.
+                 A dedicated subfolder named after this project will be automatically created inside this destination, saving all approved MP4 video clips, thumbnails, and the export manifest JSON.
               </p>
             </div>
 

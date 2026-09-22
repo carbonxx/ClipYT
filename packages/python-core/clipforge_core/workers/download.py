@@ -164,6 +164,11 @@ def _download_youtube(url: str, output_path: Path, project_id: str) -> dict:
         "progress_hooks": [progress_hook],
     }
 
+    # Add cookies support for YouTube bot protection
+    cookies_path = Path(settings.MEDIA_DIR).parent / "cookies.txt"
+    if cookies_path.exists():
+        ydl_opts["cookiefile"] = str(cookies_path)
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)

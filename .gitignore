@@ -84,3 +84,6 @@ Export/
 # Logging
 *.log
 logs/
+
+# Large Model Weights
+models/

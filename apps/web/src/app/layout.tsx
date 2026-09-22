@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ClipForge AI",
+  title: "AutoClip",
   description:
     "AI-powered tool that turns YouTube videos into ready-to-post vertical clips, scored against your campaign brief.",
 };

@@ -1,4 +1,4 @@
-# ClipForge AI — Architecture Decisions Record
+# AutoClip — Architecture Decisions Record
 
 > This document records stack choices, deferred decisions, and founder directives.
 > Each entry is immutable once recorded. New decisions are appended, not edited.
@@ -128,7 +128,7 @@ after multi-tenant scale becomes a real operational bottleneck.
 **Date:** 2026-09-01
 **Status:** Accepted
 
-Keep "ClipForge AI" as the working product name.
+Keep "AutoClip" as the working product name.
 Do not invest in final branding assets until Phase 4 rendering milestone.
 
 ---
@@ -148,7 +148,7 @@ Use current stable shadcn/ui CLI/release, not canary/v2.
 **Status:** Rejected
 **Spec ref:** context2-upgrade.md Section 1.5
 
-ClipForge will not auto-upload or auto-post to YouTube, TikTok, Instagram,
+AutoClip will not auto-upload or auto-post to YouTube, TikTok, Instagram,
 or any other platform. All publishing is manual and user-initiated.
 
 ---
@@ -175,7 +175,7 @@ Kokoro TTS uses \espeakng-loader\ for text-to-phoneme conversion. \espeakng-load
 
 ### Assessment & Constraints
 1. **Local Personal-Use Alpha (Current):** Acceptable with zero legal exposure, as private non-distributed personal use does not trigger GPL distribution obligations.
-2. **Commercial Distribution & Packaging Gate:** Before ClipForge is distributed as a packaged desktop/CLI application, sold, licensed, or offered as a multi-tenant commercial hosted SaaS service, this dependency must undergo explicit licensing review.
+2. **Commercial Distribution & Packaging Gate:** Before AutoClip is distributed as a packaged desktop/CLI application, sold, licensed, or offered as a multi-tenant commercial hosted SaaS service, this dependency must undergo explicit licensing review.
 3. **Future Remediation Pathways:**
    - Isolate the phonemization service into a standalone, separable microservice/subprocess boundary.
    - Migrate to a permissively licensed (MIT / Apache-2.0 / BSD) phonemizer (e.g. Misaki phonemizer or native rule-based lexicon).

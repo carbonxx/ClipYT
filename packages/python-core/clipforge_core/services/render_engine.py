@@ -414,9 +414,9 @@ def render_clip(
         await process.wait()
         
         if process.returncode != 0:
-            error_details = "".join(stderr_output[-20:])
-            logger.error(f"[RenderEngine] FFmpeg render failed: {error_details[:400]}")
-            raise RenderError(f"FFmpeg render failed: {error_details[:200]}")
+            error_details = "".join(stderr_output[-50:])
+            logger.error(f"[RenderEngine] FFmpeg render failed. Command: {' '.join(cmd)}\nError: {error_details}")
+            raise RenderError(f"FFmpeg render failed: {error_details}")
 
     try:
         try:

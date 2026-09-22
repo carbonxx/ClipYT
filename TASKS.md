@@ -1,4 +1,4 @@
-# ClipForge AI — Master Task List
+# AutoClip — Master Task List
 
 ## Phase 0 — Product Policy and Documentation
 - [x] Create `docs/PRODUCT_POLICY.md`.

@@ -1,6 +1,6 @@
-# ClipForge AI — v2 Monorepo Deployment Guide
+# AutoClip — v2 Monorepo Deployment Guide
 
-This guide covers local development, multi-container Docker Compose orchestration, and production deployment for ClipForge AI v2.
+This guide covers local development, multi-container Docker Compose orchestration, and production deployment for AutoClip v2.
 
 ---
 
@@ -8,18 +8,18 @@ This guide covers local development, multi-container Docker Compose orchestratio
 
 ```
 Clip-Forge/
-├── apps/
-│   ├── web/                    # Next.js 16 + Tailwind + shadcn/ui
-│   ├── api/                    # FastAPI HTTP server (/health, /ready, routes)
-│   └── worker/                 # Celery worker process
-├── packages/
-│   ├── contracts/              # Shared TypeScript types & schemas
-│   └── python-core/            # Shared Python models, services, pipeline, workers
-├── infra/
-│   ├── docker-compose.yml      # Postgres 16, Redis 7, MinIO, API, Worker
-│   └── .env.example
-├── docs/                       # PRODUCT_POLICY, DECISIONS, RENDER_MANIFEST_SCHEMA
-└── start-v2.bat                # 1-click Windows startup script
+ apps/
+    web/                    # Next.js 16 + Tailwind + shadcn/ui
+    api/                    # FastAPI HTTP server (/health, /ready, routes)
+    worker/                 # Celery worker process
+ packages/
+    contracts/              # Shared TypeScript types & schemas
+    python-core/            # Shared Python models, services, pipeline, workers
+ infra/
+    docker-compose.yml      # Postgres 16, Redis 7, MinIO, API, Worker
+    .env.example
+ docs/                       # PRODUCT_POLICY, DECISIONS, RENDER_MANIFEST_SCHEMA
+ start-v2.bat                # 1-click Windows startup script
 ```
 
 ---
@@ -115,7 +115,7 @@ The Celery worker pool uses dedicated queues per pipeline stage:
 
 ## 5. Connecting LLM Gateway
 
-ClipForge AI uses zero-cost local/proxy LLM inference via OpenAI-compatible endpoints:
+AutoClip uses zero-cost local/proxy LLM inference via OpenAI-compatible endpoints:
 1. Open the UI at `http://localhost:3000/settings`.
 2. Enter your OmniRoute or FreeLLMAPI gateway URL (default: `http://localhost:8080/v1`).
 3. Settings are persisted directly to the Postgres database.

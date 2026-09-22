@@ -302,7 +302,7 @@ export default function ClipEditorPage() {
                 Rendering...
               </>
             ) : (
-              "⚡ Re-render Video (New Effects / Audio)"
+              " Re-render Video (New Effects / Audio)"
             )}
           </button>
 
@@ -312,7 +312,7 @@ export default function ClipEditorPage() {
               onClick={handleDownloadClip}
               className="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-emerald-600/30 flex items-center gap-1.5 transition-all"
             >
-              ⬇️ Download Clip
+               Download Clip
             </button>
           )}
         </div>
@@ -326,32 +326,32 @@ export default function ClipEditorPage() {
           <div className="absolute top-4 left-6 right-6 flex items-center justify-between pointer-events-none z-10">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[10px] font-medium bg-black/80 backdrop-blur border border-white/10 px-2 py-0.5 rounded-full text-foreground flex items-center gap-1">
-                {cropMode === "stacked_speaker" ? "📺 Stacked Context" : cropMode === "blur_background" ? "🌫️ Blurred BG" : cropMode === "center" ? "📐 Center Crop" : "👤 Face Track 9:16"}
+                {cropMode === "stacked_speaker" ? " Stacked Context" : cropMode === "blur_background" ? " Blurred BG" : cropMode === "center" ? " Center Crop" : " Face Track 9:16"}
               </span>
               <span className="text-[10px] font-medium bg-black/80 backdrop-blur border border-white/10 px-2 py-0.5 rounded-full text-foreground flex items-center gap-1">
-                {captionStyle === "none" ? "🚫 No Captions" : `💬 ${captionStyle.replace("_", " ")}`}
+                {captionStyle === "none" ? " No Captions" : ` ${captionStyle.replace("_", " ")}`}
               </span>
               {voiceoverText.trim() ? (
                 <span className="text-[10px] font-semibold bg-emerald-950/85 backdrop-blur border border-emerald-500/40 px-2 py-0.5 rounded-full text-emerald-300 flex items-center gap-1 shadow-sm">
-                  🎙️ VO: {voiceId.replace("af_", "").replace("am_", "").replace("bf_", "").replace("bm_", "")}
+                   VO: {voiceId.replace("af_", "").replace("am_", "").replace("bf_", "").replace("bm_", "")}
                 </span>
               ) : (
                 <span className="text-[10px] font-medium bg-black/70 backdrop-blur border border-white/10 px-2 py-0.5 rounded-full text-cf-muted">
-                  🎙️ No Voiceover
+                   No Voiceover
                 </span>
               )}
               {musicTrack && musicTrack !== "none" ? (
                 <span className="text-[10px] font-semibold bg-indigo-950/85 backdrop-blur border border-indigo-500/40 px-2 py-0.5 rounded-full text-indigo-300 flex items-center gap-1 shadow-sm">
-                  🎵 {musicTrack.replace("_", " ")}
+                   {musicTrack.replace("_", " ")}
                 </span>
               ) : (
                 <span className="text-[10px] font-medium bg-black/70 backdrop-blur border border-white/10 px-2 py-0.5 rounded-full text-cf-muted">
-                  🎵 No Music
+                   No Music
                 </span>
               )}
               {selectedEffects.length > 0 && (
                 <span className="text-[10px] font-semibold bg-amber-950/85 backdrop-blur border border-amber-500/40 px-2 py-0.5 rounded-full text-amber-300 flex items-center gap-1 shadow-sm">
-                  ✨ {selectedEffects.length} {selectedEffects.length === 1 ? "Effect" : "Effects"}
+                   {selectedEffects.length} {selectedEffects.length === 1 ? "Effect" : "Effects"}
                 </span>
               )}
             </div>
@@ -430,7 +430,7 @@ export default function ClipEditorPage() {
                 { id: "face_track", label: "Face Track 9:16" },
                 { id: "blur_background", label: "Blurred BG" },
                 { id: "center", label: "Center Crop" },
-                { id: "stacked_speaker", label: "📺 Stacked Context" },
+                { id: "stacked_speaker", label: " Stacked Context" },
               ].map((m) => (
                 <button
                   key={m.id}
@@ -452,10 +452,10 @@ export default function ClipEditorPage() {
             <h3 className="text-xs font-bold text-primary uppercase tracking-wider">3. Caption Presets</h3>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "bold_karaoke", label: "⚡ Bold Karaoke", desc: "Yellow bounce highlight" },
-                { id: "minimal", label: "✨ Minimal White", desc: "Clean typography" },
-                { id: "clean_subtitle", label: "📺 Clean Subtitle", desc: "Standard black box" },
-                { id: "none", label: "🚫 None", desc: "No burned-in text" },
+                { id: "bold_karaoke", label: " Bold Karaoke", desc: "Yellow bounce highlight" },
+                { id: "minimal", label: " Minimal White", desc: "Clean typography" },
+                { id: "clean_subtitle", label: " Clean Subtitle", desc: "Standard black box" },
+                { id: "none", label: " None", desc: "No burned-in text" },
               ].map((c) => (
                 <button
                   key={c.id}
@@ -478,7 +478,7 @@ export default function ClipEditorPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-primary uppercase tracking-wider">4. Voiceover &amp; TTS Narration</h3>
               <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded flex items-center gap-1">
-                ⚡ Local Kokoro TTS
+                 Local Kokoro TTS
               </span>
             </div>
 
@@ -486,7 +486,7 @@ export default function ClipEditorPage() {
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  ✨ Auto-Draft Script
+                   Auto-Draft Script
                 </span>
                 <span className="text-[10px] text-cf-muted">
                   Grounded strictly in transcript dialogue
@@ -498,14 +498,14 @@ export default function ClipEditorPage() {
                 {[
                   {
                     id: "hook_intro",
-                    label: "⚡ Hook Intro",
+                    label: " Hook Intro",
                     badge: "6–9 words",
                     desc: "First 3s punchy hook",
                     disabled: false,
                   },
                   {
                     id: "explainer",
-                    label: "📖 Explainer",
+                    label: " Explainer",
                     badge: "15–20 words",
                     desc: "Context over pause gap",
                     disabled: voiceoverContext ? !voiceoverContext.has_qualifying_gap : false,
@@ -513,14 +513,14 @@ export default function ClipEditorPage() {
                   },
                   {
                     id: "hype_reaction",
-                    label: "🔥 Hype Reaction",
+                    label: " Hype Reaction",
                     badge: "12–16 words",
                     desc: "Climax reaction overlay",
                     disabled: false,
                   },
                   {
                     id: "outro_cta",
-                    label: "💬 Outro CTA",
+                    label: " Outro CTA",
                     badge: "8–11 words",
                     desc: "Closing CTA hook",
                     disabled: false,
@@ -545,7 +545,7 @@ export default function ClipEditorPage() {
                     </div>
                     {s.disabled && s.disabledReason && (
                       <span className="text-[8px] text-amber-400 mt-1 block">
-                        ⚠️ {s.disabledReason}
+                         {s.disabledReason}
                       </span>
                     )}
                   </button>
@@ -566,7 +566,7 @@ export default function ClipEditorPage() {
               <div className="rounded-lg bg-surface/80 border border-border p-3 space-y-1.5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between text-[11px] font-medium text-cf-muted">
-                    <span className="flex items-center gap-1">💬 Source Transcript Snippet</span>
+                    <span className="flex items-center gap-1"> Source Transcript Snippet</span>
                     <span>[{startSec.toFixed(1)}s – {endSec.toFixed(1)}s]</span>
                   </div>
                   <div className="text-xs text-foreground/90 mt-1.5 italic bg-background/50 p-2.5 rounded border border-border/50 max-h-28 overflow-y-auto leading-relaxed">
@@ -582,8 +582,8 @@ export default function ClipEditorPage() {
                 <div className="flex items-center justify-between text-[10px] text-cf-muted pt-1 border-t border-border/40">
                   <span>
                     {voiceoverContext?.has_qualifying_gap
-                      ? `🟢 Pause detected (${voiceoverContext.gaps[0]?.duration_sec}s)`
-                      : "⚪ Continuous dialogue (No ≥3s gap)"}
+                      ? ` Pause detected (${voiceoverContext.gaps[0]?.duration_sec}s)`
+                      : " Continuous dialogue (No ≥3s gap)"}
                   </span>
                   <span>{voiceoverContext?.segments?.length || 0} segments</span>
                 </div>
@@ -612,7 +612,7 @@ export default function ClipEditorPage() {
                           }}
                           className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition"
                         >
-                          ▶️ Listen to Preview
+                           Listen to Preview
                         </button>
                       )}
                     </div>
@@ -637,7 +637,7 @@ export default function ClipEditorPage() {
                 </div>
                 <div className="flex items-center justify-between text-[10px] text-cf-muted">
                   <span className="flex items-center gap-1">
-                    📍 Audio placement starts at: <strong className="text-foreground">{voiceoverStartOffsetSec.toFixed(1)}s</strong>
+                     Audio placement starts at: <strong className="text-foreground">{voiceoverStartOffsetSec.toFixed(1)}s</strong>
                   </span>
                   <button
                     type="button"
@@ -653,7 +653,7 @@ export default function ClipEditorPage() {
             {/* Unverified Claim Warning Banner */}
             {unverifiedWarning && (
               <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-2.5 flex items-start gap-2 text-xs text-amber-200">
-                <span className="text-base leading-none">⚠️</span>
+                <span className="text-base leading-none"></span>
                 <div>
                   <strong className="font-semibold block text-amber-300">Unverified Claim Warning</strong>
                   <span className="text-[11px] text-amber-200/90 leading-tight block mt-0.5">
@@ -687,16 +687,16 @@ export default function ClipEditorPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-primary uppercase tracking-wider">5. Ambient Background Music</h3>
               <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
-                🎵 Dynamic Ducking (-12dB)
+                 Dynamic Ducking (-12dB)
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
-                { id: "none", label: "🚫 No Music", desc: "Keep raw video audio" },
-                { id: "ambient_focus", label: "🧘 Ambient Focus", desc: "Subtle minimal bed" },
-                { id: "lofi_beats", label: "☕ Chill Lo-Fi", desc: "Warm hip-hop groove" },
-                { id: "upbeat_tech", label: "⚡ Upbeat Tech", desc: "High energy & punchy" },
-                { id: "epic_cinematic", label: "🎬 Cinematic Tension", desc: "Dramatic build" },
+                { id: "none", label: " No Music", desc: "Keep raw video audio" },
+                { id: "ambient_focus", label: " Ambient Focus", desc: "Subtle minimal bed" },
+                { id: "lofi_beats", label: " Chill Lo-Fi", desc: "Warm hip-hop groove" },
+                { id: "upbeat_tech", label: " Upbeat Tech", desc: "High energy & punchy" },
+                { id: "epic_cinematic", label: " Cinematic Tension", desc: "Dramatic build" },
               ].map((m) => (
                 <button
                   key={m.id}
@@ -723,18 +723,18 @@ export default function ClipEditorPage() {
 
             {selectedEffects.length > 2 && (
               <div className="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] leading-tight">
-                ⚠️ Stacking more than 2 effects may reduce clarity.
+                 Stacking more than 2 effects may reduce clarity.
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "film_grain", label: "🎞️ Film Grain", status: "active" },
-                { id: "vignette", label: "🎬 Vignette", status: "active" },
-                { id: "zoom", label: "🔍 Push-In Zoom", status: "active" },
-                { id: "camera_shake", label: "📳 Handheld Shake", status: "active" },
-                { id: "rgb_split", label: "🌈 RGB Glitch", status: "active" },
-                { id: "vhs_noise", label: "📼 VHS Retro", status: "active" },
+                { id: "film_grain", label: " Film Grain", status: "active" },
+                { id: "vignette", label: " Vignette", status: "active" },
+                { id: "zoom", label: " Push-In Zoom", status: "active" },
+                { id: "camera_shake", label: " Handheld Shake", status: "active" },
+                { id: "rgb_split", label: " RGB Glitch", status: "active" },
+                { id: "vhs_noise", label: " VHS Retro", status: "active" },
               ].map((eff) => {
                 const isAvailable = eff.status === "active";
                 const isSelected = selectedEffects.includes(eff.id);

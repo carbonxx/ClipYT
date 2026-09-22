@@ -1,4 +1,4 @@
-# ClipForge AI — Product Specification v2
+# AutoClip — Product Specification v2
 ## Transformative, Rights-Aware AI Clipping Pipeline
 
 **Owner:** Ravi Saxena  
@@ -6,9 +6,9 @@
 **Status:** Build specification for Google Antigravity  
 **Last updated:** 2026-09-01  
 
-> **Purpose:** This document upgrades ClipForge AI from a basic auto-clipping pipeline into a professional, rights-aware, review-first production system. It helps creators produce materially transformed clips through original commentary, narration, structured editing, dynamic graphics, captions, and visual treatments.
+> **Purpose:** This document upgrades AutoClip from a basic auto-clipping pipeline into a professional, rights-aware, review-first production system. It helps creators produce materially transformed clips through original commentary, narration, structured editing, dynamic graphics, captions, and visual treatments.
 >
-> **Important policy boundary:** No software can guarantee YouTube Partner Program acceptance, prevent copyright claims, or make unlicensed footage legal. ClipForge must never promise “monetization without issues.” It must help users make better, more original, better-documented decisions; final rights clearance, publishing, and platform-policy compliance remain the user’s responsibility.
+> **Important policy boundary:** No software can guarantee YouTube Partner Program acceptance, prevent copyright claims, or make unlicensed footage legal. AutoClip must never promise “monetization without issues.” It must help users make better, more original, better-documented decisions; final rights clearance, publishing, and platform-policy compliance remain the user’s responsibility.
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## 1.1 Overview
 
-**Product name:** ClipForge AI  
+**Product name:** AutoClip  
 **One-liner:** A local-first, AI-assisted video clipping studio that turns authorized long-form source video into reviewable, vertical social clips with campaign-aware segment selection, original narrative overlays, captions, voiceover, audio mixing, and reusable motion-effect presets.
 
 ## 1.2 Problem
@@ -29,7 +29,7 @@ Clippers and small creator teams can quickly cut content, but getting clips acce
 - Produces consistently formatted Shorts/Reels/TikToks without requiring a professional editor for every output.
 - Preserves a human review and publishing decision before content goes live.
 
-Commercial clipping tools are optimized for generic virality and batch automation. ClipForge differentiates by combining configurable production controls with a **Transformation & Rights Checklist** per project and per clip.
+Commercial clipping tools are optimized for generic virality and batch automation. AutoClip differentiates by combining configurable production controls with a **Transformation & Rights Checklist** per project and per clip.
 
 ## 1.3 Target users
 
@@ -52,12 +52,12 @@ Commercial clipping tools are optimized for generic virality and batch automatio
 
 ## 1.5 Non-goals (v1)
 
-- ClipForge will not auto-upload or auto-post to YouTube, TikTok, Instagram, or Whop.
-- ClipForge will not scrape, bypass DRM, download private/paywalled content, or bypass platform access controls.
-- ClipForge will not claim that filters/effects alone satisfy YouTube reused-content policy.
-- ClipForge will not generate or facilitate imitation/voice-cloning of a real person without verified rights and explicit consent.
-- ClipForge will not offer legal advice, copyright clearance, or guaranteed YPP approval.
-- ClipForge will not target movie, TV, anime, sports-broadcast, music-video, or other high-claim-risk source libraries as a clipping workflow.
+- AutoClip will not auto-upload or auto-post to YouTube, TikTok, Instagram, or Whop.
+- AutoClip will not scrape, bypass DRM, download private/paywalled content, or bypass platform access controls.
+- AutoClip will not claim that filters/effects alone satisfy YouTube reused-content policy.
+- AutoClip will not generate or facilitate imitation/voice-cloning of a real person without verified rights and explicit consent.
+- AutoClip will not offer legal advice, copyright clearance, or guaranteed YPP approval.
+- AutoClip will not target movie, TV, anime, sports-broadcast, music-video, or other high-claim-risk source libraries as a clipping workflow.
 
 ## 1.6 User stories
 
@@ -97,7 +97,7 @@ Commercial clipping tools are optimized for generic virality and batch automatio
 
 ## 2.1 Core product rule
 
-ClipForge must describe outputs as **“transformation-supporting edits”**, not “monetization-safe,” “copyright-free,” “strike-proof,” or “YPP guaranteed.” Effects, captions, and emojis alone are not sufficient proof of substantial originality.
+AutoClip must describe outputs as **“transformation-supporting edits”**, not “monetization-safe,” “copyright-free,” “strike-proof,” or “YPP guaranteed.” Effects, captions, and emojis alone are not sufficient proof of substantial originality.
 
 ## 2.2 Rights declaration at project creation
 
@@ -113,7 +113,7 @@ Store supporting proof optionally: permission URL, campaign name, campaign brief
 
 ## 2.3 Source risk labels
 
-ClipForge may help users assess workflow risk but must not make legal conclusions.
+AutoClip may help users assess workflow risk but must not make legal conclusions.
 
 | Risk label | Trigger | UX behavior |
 |---|---|---|
@@ -456,7 +456,7 @@ Effects are enhancement layers. Interface copy must say: **“Effects improve vi
 **Rules:**
 
 - Use an original or properly licensed logo asset, never another platform's trademark by default.
-- Default to a generic “ClipForge” / user-uploaded asset, not the DVD trademarked mark.
+- Default to a generic “AutoClip” / user-uploaded asset, not the DVD trademarked mark.
 - Avoid caption zone and tracked face zone when enabled.
 - Randomize start direction per clip, but store seed in render manifest so re-renders remain reproducible.
 - Treat as a decorative layer, not a policy-compliance feature.
@@ -547,7 +547,7 @@ Every clip card contains:
 
 ## 5.3 Critical edge cases
 
-- **Private/blocked URL:** Explain that ClipForge cannot access unavailable/DRM-protected video; ask user to upload source media they are authorized to use.
+- **Private/blocked URL:** Explain that AutoClip cannot access unavailable/DRM-protected video; ask user to upload source media they are authorized to use.
 - **No strong candidates:** Show transcript and enable manual in/out range selection rather than creating poor clips.
 - **Free provider exhausted:** Mark intelligence task “Waiting for alternate provider”; allow retry with user-selected gateway model.
 - **TTS fails:** Preserve the editable script, allow narration upload, and let user render original-only audio.
@@ -1052,7 +1052,7 @@ Before each change, read this document and `STATUS.md`. Implement **one checklis
 ## 9.4 First build prompt
 
 ```text
-Read /context.md, /STATUS.md, /PROGRESS.md, and /TASKS.md fully. We are building ClipForge AI according to the product spec.
+Read /context.md, /STATUS.md, /PROGRESS.md, and /TASKS.md fully. We are building AutoClip according to the product spec.
 
 Execute only Phase 1, first unchecked task: initialize the monorepo using apps/web, apps/api, apps/worker, packages/contracts, and infra. Use pnpm for Node and uv for Python. Do not build product UI or media-processing logic yet.
 
@@ -1067,7 +1067,7 @@ Before editing, restate the task, cite the relevant spec sections, list files yo
 2. **Operating system:** confirm whether primary dev machine is Windows, macOS, or Linux. FFmpeg, Docker, local TTS, and local file paths need OS-specific setup instructions.
 3. **Hardware:** confirm RAM, CPU, and GPU model/VRAM. This determines whether local faster-whisper and TTS are comfortable or whether a GPU worker is needed.
 4. **Authorized test footage:** provide 2–3 videos you own or have explicit permission to process. Do not use movie/TV/anime footage as the core test dataset.
-5. **Brand name:** keep “ClipForge AI” as working title or choose final product name before building branding assets.
+5. **Brand name:** keep “AutoClip” as working title or choose final product name before building branding assets.
 
 ---
 

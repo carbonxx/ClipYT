@@ -82,7 +82,7 @@ export default function SettingsPage() {
         </Link>
         <h1 className="text-3xl font-bold tracking-tight text-white">Settings</h1>
         <p className="mt-2 text-cf-muted-fg">
-          Configure the LLM gateway for clip selection. ClipForge supports any OpenAI-compatible API (OmniRoute, FreeLLMAPI, vLLM, etc).
+          Configure the LLM gateway for clip selection. AutoClip supports any OpenAI-compatible API (OmniRoute, FreeLLMAPI, vLLM, etc).
         </p>
       </div>
 
@@ -243,11 +243,11 @@ export default function SettingsPage() {
       {/* Rights & Originality Checklist (context2-upgrade.md Section 2.2 & 6.2) */}
       <div className="rounded-lg border border-border bg-card p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
-          <span className="text-base">🛡️</span>
+          <span className="text-base"></span>
           <h3 className="text-sm font-bold text-foreground">Rights &amp; Originality Editorial Checklist</h3>
         </div>
         <p className="text-xs text-cf-muted leading-relaxed">
-          ClipForge AI is an editorial studio designed to assist transformative clipping. Ensure your project meets monetization standards:
+          AutoClip is an editorial studio designed to assist transformative clipping. Ensure your project meets monetization standards:
         </p>
 
         <div className="space-y-2.5 pt-2">
@@ -270,7 +270,7 @@ export default function SettingsPage() {
             },
           ].map((item, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-background border border-border">
-              <span className="text-primary font-bold text-xs mt-0.5">✓</span>
+              <span className="text-primary font-bold text-xs mt-0.5"></span>
               <div>
                 <h4 className="text-xs font-semibold text-foreground">{item.title}</h4>
                 <p className="text-[11px] text-cf-muted mt-0.5">{item.desc}</p>

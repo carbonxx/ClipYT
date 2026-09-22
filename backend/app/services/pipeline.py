@@ -168,7 +168,7 @@ def run_post_download(
     source_path = download_result["source_path"]
     project_dir = str(Path(source_path).parent)
 
-    # ─── STAGE 2: TRANSCRIBE ───
+    #  STAGE 2: TRANSCRIBE 
     logger.info(f"[Pipeline] Transcribe starting for {project_id}")
     _update_job(project_id, "transcribe", "running")
     _update_project(project_id, "transcribing")
@@ -183,7 +183,7 @@ def run_post_download(
         _update_project(project_id, "failed")
         raise
 
-    # ─── STAGE 3: SELECT ───
+    #  STAGE 3: SELECT 
     logger.info(f"[Pipeline] Select starting for {project_id}")
     _update_job(project_id, "select", "running")
     _update_project(project_id, "selecting")
@@ -232,7 +232,7 @@ def run_post_download(
     # Save clips to database
     _save_clips_to_db(project_id, selections)
 
-    # ─── STAGE 4: CROP ───
+    #  STAGE 4: CROP 
     logger.info(f"[Pipeline] Crop starting for {project_id}")
     _update_job(project_id, "crop", "running")
     _update_project(project_id, "encoding")
@@ -266,7 +266,7 @@ def run_post_download(
         _update_project(project_id, "failed")
         return {"error": "All clips failed to crop", "project_id": project_id}
 
-    # ─── STAGE 5: CAPTION ───
+    #  STAGE 5: CAPTION 
     logger.info(f"[Pipeline] Caption starting for {project_id}")
     _update_job(project_id, "caption", "running")
     _update_project(project_id, "captioning")
@@ -418,7 +418,7 @@ def run_reclip(
         Path(filtered_path).write_text(json.dumps(transcript, indent=2, ensure_ascii=False), encoding="utf-8")
         transcript_path = filtered_path
 
-    # ─── STAGE: SELECT ───
+    #  STAGE: SELECT 
     logger.info(f"[Reclip] Select starting for {project_id}")
     _update_job(project_id, "select", "running")
     _update_project(project_id, "selecting")
@@ -466,7 +466,7 @@ def run_reclip(
 
     _save_clips_to_db(project_id, selections)
 
-    # ─── STAGE: CROP ───
+    #  STAGE: CROP 
     logger.info(f"[Reclip] Crop starting for {project_id}")
     _update_job(project_id, "crop", "running")
     _update_project(project_id, "encoding")
@@ -504,7 +504,7 @@ def run_reclip(
         _update_project(project_id, "failed")
         return {"error": "All clips failed to crop", "project_id": project_id}
 
-    # ─── STAGE: CAPTION ───
+    #  STAGE: CAPTION 
     logger.info(f"[Reclip] Caption starting for {project_id}")
     _update_job(project_id, "caption", "running")
     _update_project(project_id, "captioning")

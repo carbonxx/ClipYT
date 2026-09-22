@@ -1,4 +1,4 @@
-# ClipForge AI — Build Documentation Pack
+# AutoClip — Build Documentation Pack
 *Following the Vibe Coding Template Pack structure (PRD → TRD → App Flow → UI/UX Brief → Backend Schema → Implementation Plan)*
 
 ---
@@ -6,7 +6,7 @@
 # 01. Product Requirements Document (PRD)
 
 ## 1. Overview
-- **Product name:** ClipForge AI
+- **Product name:** AutoClip
 - **One-liner:** A self-hosted, AI-powered tool that turns any YouTube video or local video folder into ready-to-post, caption-burned vertical clips, scored and selected against custom campaign guidelines — for free, using local/free LLM inference.
 - **Author:** Ravi Saxena
 - **Last updated:** 2026-08-31
@@ -70,26 +70,26 @@ Today, creators doing paid clipping work (e.g., Whop Content Rewards campaigns) 
 
 ```
 Next.js Frontend
-      │
-      ▼
+      
+      
 FastAPI API (job creation, status polling, review actions)
-      │
-      ▼
+      
+      
 Redis (Celery broker)
-      │
-   ┌──┴────────────┬───────────────┬──────────────┬───────────────┐
-   ▼                ▼               ▼              ▼               ▼
+      
+   
+                                                               
 Download Worker  Transcribe      Select Worker   Crop/Encode    Caption Worker
 (yt-dlp)         Worker          (LLM via         Worker         (captacity)
                  (faster-        OmniRoute/       (ClipsAI +
                  whisper)        FreeLLMAPI)      ffmpeg)
-      │                │               │               │               │
-      └────────────────┴───────────────┴───────────────┴───────────────┘
-                                   │
-                                   ▼
+                                                                   
+      
+                                   
+                                   
                         Cloudflare R2 (source + output files)
-                                   │
-                                   ▼
+                                   
+                                   
                         Postgres (job/clip metadata, status)
 ```
 

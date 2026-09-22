@@ -2,39 +2,39 @@
 
 ## Current State
 - **Branch:** `feature/clipforge-v2-foundation`
-- **Phase 0 (Product Policy & Documentation):** ✅ 100% Complete
-- **Phase 1 (Foundation and Local Development):** ✅ 100% Complete
-- **Phase 2 (Source Ingestion and Analysis):** ✅ 100% Complete
-- **Phase 3 (Brief-Aware Candidate Selection):** ✅ 100% Complete
-- **Phase 4 (First Professional Render):** ✅ 100% Complete
-- **Phase 5 (Editorial Transformation Layer):** ✅ 100% Complete
-- **Phase 6 (Voiceover and Audio Studio):** ✅ 100% Complete
-- **Phase 7 (Motion Effects Engine):** ✅ 100% Complete
-- **Phase 8 (Clip Editor and Brand Kits):** ✅ 100% Complete
-- **Phase 9 (Testing, Reliability, and Release Hardening):** ✅ 100% Complete
-- **Phase 10 (Scale Readiness & Localhost Optimization):** ✅ 100% Complete
-- **Operational Readiness (Audit Fixes):** ✅ 100% Complete (P0-01, P0-03, P0-02 fixed)
-- **Beta Sprint A (Core Spoken-Video Validation & Schema Alignment):** ✅ 100% Complete
+- **Phase 0 (Product Policy & Documentation):**  100% Complete
+- **Phase 1 (Foundation and Local Development):**  100% Complete
+- **Phase 2 (Source Ingestion and Analysis):**  100% Complete
+- **Phase 3 (Brief-Aware Candidate Selection):**  100% Complete
+- **Phase 4 (First Professional Render):**  100% Complete
+- **Phase 5 (Editorial Transformation Layer):**  100% Complete
+- **Phase 6 (Voiceover and Audio Studio):**  100% Complete
+- **Phase 7 (Motion Effects Engine):**  100% Complete
+- **Phase 8 (Clip Editor and Brand Kits):**  100% Complete
+- **Phase 9 (Testing, Reliability, and Release Hardening):**  100% Complete
+- **Phase 10 (Scale Readiness & Localhost Optimization):**  100% Complete
+- **Operational Readiness (Audit Fixes):**  100% Complete (P0-01, P0-03, P0-02 fixed)
+- **Beta Sprint A (Core Spoken-Video Validation & Schema Alignment):**  100% Complete
   - Render manifest generation updated and validated against Draft-07 canonical schema with zero errors.
   - Video stream audio, codec (h264/aac), duration, and error-free decode verified via ffprobe/ffmpeg on professor speech fixture.
   - Word-level ASS karaoke captions verified and aligned.
   - Test fixture rights documented in `SOURCE_LICENSE.md` and `source-metadata.json`.
   - Full test suite passing (41/41 tests passing).
-- **Beta Sprint B (MediaPipe Face-Tracking Crop & Cleanup):** ✅ 100% Complete
+- **Beta Sprint B (MediaPipe Face-Tracking Crop & Cleanup):**  100% Complete
   - MediaPipe `0.10.14` pinned with zero external token requirements and zero dependency conflicts.
   - `face_tracker.py` implemented with BlazeFace detection, exponential coordinate smoothing (`smoothing_factor=0.25`), and graceful center-crop fallback (`fallback_used=True` when no face is present).
   - Face tracking on professor fixture verified: 449 samples, 88.6% detection rate, `avg_focal_x=0.5020`, `std_dev_focal_x=0.1250` (demonstrating true dynamic framing variance).
   - Extracted and verified frames at 3 timestamps (t=2s, t=18s, t=32s).
   - Deleted dead `crop.py` worker and removed its route from `celery_app.py` and `workers/__init__.py`.
   - Full test suite passing (42/42 tests passing).
-- **Beta Sprint C.2 (Color/Texture Effects: RGB Glitch & VHS Retro):** ✅ 100% Complete
+- **Beta Sprint C.2 (Color/Texture Effects: RGB Glitch & VHS Retro):**  100% Complete
   - Native `rgbashift` Implementation: Implemented chromatic split directly via FFmpeg's C-native `rgbashift` with `edge=smear` and locked green channel (`rh={offset}:bh=-{offset}`).
   - Unshifted Green Channel Confirmed: Green channel has 0 spatial offset (`gh=0`, `gv=0`), preventing center text smearing and general color blur.
   - Caption Readability at Moderate ($0.5$) & Max ($1.0$) Intensity: Both RGB Glitch and VHS Retro verified at $I=0.50$ and $I=1.00$ with active burned-in karaoke captions. Captions remain completely crisp, distinct, and legible.
   - Full 6-Effect Stack Live Verification: Re-rendered live fixture with all 6 effects combined (`film_grain`, `vignette`, `zoom`, `camera_shake`, `rgb_split`, `vhs_noise`) with 0 decode errors and valid Draft-07 manifest (6 layers).
   - Web UI Fully Activated: All 6 motion and color effects active in Clip Editor UI with stacking clarity warning.
   - Full workspace test suite passing (52/52 unit tests passing, Next.js build clean).
-- **Beta Sprint D (Audio Studio — Local Kokoro TTS, Sidechain Ducking & EBU R128 Loudnorm):** ✅ 100% Complete
+- **Beta Sprint D (Audio Studio — Local Kokoro TTS, Sidechain Ducking & EBU R128 Loudnorm):**  100% Complete
   - Zero-Network Local Kokoro TTS: Integrated `kokoro-onnx` ONNX Runtime engine with local thread-safe singleton model loader and verified zero network calls at inference time.
   - Upstream Model Assets & Verification: Created `scripts/download_kokoro_models.py` verifying official SHA-256 hashes (`kokoro-v0_19.onnx` and `voices.bin`) with upstream model card URLs documented. Excluded `.onnx` and `.bin` from git via `.gitignore`.
   - Licensing Architecture Documented: Appended ADR-012 in `docs/DECISIONS.md` documenting `espeak-ng` GPL-3.0 phonemization dependency and commercial distribution considerations.
@@ -43,33 +43,33 @@
   - Strict Schema Manifests: Conditionally sets `duck_original_under_voiceover: false` when `audio.mode == "original_only"`, and `true` when `audio.mode == "mix"`. Validated against Draft-07 JSON schema with 0 errors.
   - Web UI Updated: Replaced legacy voice selector with Kokoro voices (`af_bella`, `am_adam`, `bf_emma`, `bm_george`, `af_sarah`, `am_michael`, `af_nicole`), added offline status badge, and removed synthetic sine-tone music bed.
   - Full test suite passing (53/53 unit tests passing, Next.js build clean).
-- **Post-Beta Polish & AUDIT-P1-05 Policy Compliance:** ✅ 100% Complete
+- **Post-Beta Polish & AUDIT-P1-05 Policy Compliance:**  100% Complete
   - **Auto-Download on Export (Item 1):** Implemented `GET /api/clips/{clip_id}/download` with `Content-Disposition: attachment` headers, wired into project export modal with sequenced auto-trigger downloads, and added direct "Download Clip" header button in Clip Studio.
   - **Studio Action Labels (Item 2):** Clarified button distinction in Clip Studio (`/project/[id]/clip/[clipId]`) to "Save Metadata" (fast metadata save) vs. "Re-render Video (New Effects / Audio)".
   - **AUDIT-P1-05 Policy Compliance (Item 3):** Fully refactored candidate selection and ranking to canonical `editorial_potential` metric ($50\%$ weight alongside $50\%$ `transformation_score`). Updated prompt schema, candidate ranker formula, schemas, web tooltips, and unit tests with backward-compatible legacy fallbacks.
   - **Test Suite Verification:** 55/55 Python unit tests passing; Next.js 16 build passing with 0 errors across all routes.
-- **Session 9 (Direct Local Export & Auto Subfolder Engine):** ✅ 100% Complete
+- **Session 9 (Direct Local Export & Auto Subfolder Engine):**  100% Complete
   - **Silent Local Export:** Replaced browser download loops with direct server-side file copy to the configured `export_path`, eliminating browser prompt popups.
   - **Dedicated Project Subfolders:** Automatically generates project subfolders (`D:\TestExport\Project_Title\`) with sequential numbered filenames (`01_Clip_Title.mp4`), thumbnails, and JSON manifests.
   - **Settings Integration:** Auto-populates export destination in project export modal from `/api/settings`.
   - **Verification:** 55/55 Python tests passing, Next.js production build compiling clean.
-- **Session 11 (Precision 9:16 Face-Centering & Audio Mixer Calibrations):** ✅ 100% Complete
+- **Session 11 (Precision 9:16 Face-Centering & Audio Mixer Calibrations):**  100% Complete
   - **Dynamic Face-Centering Crop Formula:** Fixed 9:16 crop window centering formula to place the 9:16 crop window directly on the speaker's face (`x_offset = max(0, min(src_w - crop_w, face_center_x - crop_w / 2))`).
   - **Music Synthesizer & Ducking Calibration:** Upgraded synth beds to 5-oscillator polyphonic progressions mastered to $-16\text{ LUFS}$ with $-8\text{ dB}$ mix attenuation.
   - **Project Export Fix:** Resolved Clip attribute name lookups in `export_project_clips`.
-- **Session 12 (Long-Video Pipeline Optimization & Latent E05 Completion):** ✅ 100% Complete
+- **Session 12 (Long-Video Pipeline Optimization & Latent E05 Completion):**  100% Complete
   - **Identified Long-Video Bottleneck:** 54-minute ($1.83\text{ GB}$, $97,130$ frames) video took excess time due to full unscaled 1080p frame decoding in PySceneDetect and MediaPipe.
   - **PySceneDetect Acceleration:** Added `scene_manager.auto_downscale = True` and `frame_skip = 4`, speeding up scene cut detection on hour-long videos by $4\times$.
   - **MediaPipe BlazeFace Optimization:** Downscaled frames to $480\times 270$ and used OpenCV `cap.grab()` on non-sampled frames, reducing face tracking time by $8\times$.
   - **Resilient Pipeline Worker:** Added cached `transcript.json` detection and fallback try/except blocks in `analysis.py` to prevent any job stalling.
   - **Latent E05 Full Generation:** Processed all 1,159 transcript segments from `LatentE05.mp4`, selected 5 viral clips (Score: 82/100), and rendered all 5 clips with 9:16 vertical crop, karaoke captions, thumbnails, and audio beds.
-- **Session 13 (Active Speaker Detection for Multi-Person 9:16 Crop):** ✅ 100% Complete
+- **Session 13 (Active Speaker Detection for Multi-Person 9:16 Crop):**  100% Complete
   - **FaceMesh Lip-Movement Analysis:** Enhanced `face_tracker.py` with MediaPipe FaceMesh (468 landmarks) to detect active speaker via Mouth Aspect Ratio (MAR) variance during transcript speech windows.
   - **Transcript-Audio Correlation:** Cross-references word-level timestamps from transcript with lip movement to identify the speaking person in multi-face scenes.
   - **Backward Compatible:** Same `focal_x` timeline output contract — zero changes to render engine, caption system, or any downstream components.
   - **Analysis Worker Integration:** `analysis.py` now passes transcript data to face tracker for enhanced speaker-aware crop targeting.
   - **Verification:** 11/11 face tracker tests passing, full suite regression clean.
-- **Session 14 (Native Browser File & Folder Explorer Integration):** ✅ 100% Complete
+- **Session 14 (Native Browser File & Folder Explorer Integration):**  100% Complete
   - **Eliminated Windows Focus Locks:** Replaced background process dialogs with 100% browser-native HTML5 pickers (`<input type="file">` for videos and `<input type="file" webkitdirectory>` for folders).
   - **Zero Latency & 100% Reliability:** Both **"Browse Video File..."** and **"Browse Folder..."** directly command Windows Explorer from the active browser window, popping open immediately with zero focus issues or thread deadlocks.
   - **Real-Time Visual Badging:** Selected video files display size metadata (e.g. `Selected Video File: my-video.mp4 (1.83 GB)`), while selected folders display total video count detected inside the directory.
@@ -81,18 +81,18 @@
 - **Project Duplication**: Added `cloneProject` endpoint and UI button to instantly duplicate projects with all associated media and metadata, allowing safe experimentation with different clipping parameters.
 - **Stage Pill Stability**: Fixed bug in orchestrator where `dispatch_reclip` left downstream stage badges hanging in an invalid 'success' state by explicitly resetting statuses to 'pending' before dispatching.
 
-- **Session 15 ("Generate More Clips" / Reclip Schema Bugfix & Latent E05 20-Clip Generation):** ✅ 100% Complete
+- **Session 15 ("Generate More Clips" / Reclip Schema Bugfix & Latent E05 20-Clip Generation):**  100% Complete
   - **Diagnosed "Failed to fetch" (500 Internal Server Error):** When the user clicked "Generate 20 More Clips", the frontend sent `min_length_sec`, `max_length_sec`, `aspect_ratio`, and `caption_style`. In `clipforge_core.schemas`, `ReclipRequest` was missing these fields, causing an `AttributeError` on `data.min_length_sec`.
   - **Schema Synchronization:** Added `min_length_sec`, `max_length_sec`, `aspect_ratio`, and `caption_style` to `ReclipRequest` in `packages/python-core/clipforge_core/schemas/__init__.py`.
   - **Dynamic Project Settings Persistence:** Updated `reclip_project` route to persist new settings directly onto the project record (`clip_count=20`, `min_length_sec`, etc.).
   - **Live Verification & Pipeline Progression:** Cleaned up stale database job record for `transcribe` to display `Success`. Live browser verification confirmed all 5 cards accurate: Download (Success), Transcribe (Success), AI Select (Success), Crop & Encode (Running - encoding 15+ clips with active-speaker tracking), Caption (Success). 3 approved and 12 pending clips loaded on dashboard.
-- **Session 16 (Active-Speaker Face Tracking, Dynamic Effects Timeout & README Update):** ✅ 100% Complete
+- **Session 16 (Active-Speaker Face Tracking, Dynamic Effects Timeout & README Update):**  100% Complete
   - **MediaPipe FaceMesh Active-Speaker Analysis:** Successfully executed active-speaker face tracking across all candidate clips of `LatentE05.mp4`. Extracted 468 facial landmarks per face to calculate Mouth Aspect Ratio (MAR) variance during speech windows, generating 1,684 timeline points saved directly into `analysis.json`.
   - **Multi-Batch Clip Numbering & DB Matching:** Updated `render_project_clips` in `packages/python-core/clipforge_core/workers/render.py` to match candidate clips to database records by exact timestamp ranges (`start_sec`, `end_sec`) and assign distinct sequential indices (`clip_6`, `clip_7`, etc.), preventing earlier batch clips (`clip_1` - `clip_5`) from ever being overwritten.
   - **Dynamic Effects Engine Timeout:** Replaced hardcoded 120s timeout in `effects_engine.py` with dynamic duration scaling (`max(300, int(duration_sec * 5))`), allowing long clips (>60s) with multiple stacked visual effects to render without timing out.
   - **Public Documentation Refresh:** Updated `README.md` with comprehensive documentation of Active Speaker Tracking, Browser-Native Explorer, Ambient Music Studio, and Direct Local Export.
   - **Active Render Execution:** Revived Celery worker and FastAPI backend; Celery actively rendering clips with active-speaker dynamic 9:16 crop, karaoke captions, and audio mastering.
-- **Session 17 (Timeline Window, Temporal Binning, Content Focus & Boundary-Aware Duration Clamping):** ✅ 100% Complete
+- **Session 17 (Timeline Window, Temporal Binning, Content Focus & Boundary-Aware Duration Clamping):**  100% Complete
   - **Boundary-Aware Duration Clamping:** Implemented `clamp_to_boundary()` in `candidate_ranker.py` using Whisper segment ends and PySceneDetect cut points within a 5.0s tolerance window, with upper-cap guard preventing under-length extension from exceeding `max_length_sec` and explicit warning logging on raw fallbacks.
   - **Dynamic Temporal Binning Engine:** Implemented `compute_temporal_bins()` in `services/temporal_binner.py` using `divmod` remainder distribution, dynamically dividing video timelines into chronological acts and guaranteeing `sum(quota) == clip_count` exactly across any video length (validated 8-min to 90-min).
   - **Post-LLM Bin-Membership Validation:** Added `validate_bin_membership()` to programmatically verify candidates against assigned bin intervals post-LLM, discarding or reassigning out-of-bin violations.
@@ -101,7 +101,7 @@
   - **Active v2 Scope Confirmed:** All changes scoped strictly to `apps/api/`, `apps/web/`, and `packages/python-core/`; legacy `backend/` and `frontend/` untouched.
   - **Frontend Studio UI:** Added Section 5 (Timeline Window & Selection Strategy) to `apps/web/src/app/new/page.tsx` with MM:SS inputs, Content Focus mode buttons, Timeline Distribution tiles, and Strict Hard Duration Guarantee badge. Added matching controls to the Reclip Modal in `apps/web/src/app/project/[id]/page.tsx`.
   - **Test Suite Verification:** 82/82 Python unit tests passing (100% pass rate in 163.96s) including 5/5 duration clamp tests and 9/9 temporal binner tests; Next.js TypeScript type check passed with 0 errors.
-- **Session 18 (Step 1: Live Verification of Timeline / Duration Features):** ✅ 100% Complete
+- **Session 18 (Step 1: Live Verification of Timeline / Duration Features):**  100% Complete
   - **Live Verification on 54-Min Source:** Executed live selection through Celery worker and live LLM gateway on project `0a6e8175-d26d-4400-a9d0-bb1a9eaaec77` (*India's Got Latent E05*, 54m / 3237.7s).
   - **Durations Measured:** 5 clips generated: 29.30s, 20.10s, 24.80s, 20.77s, 22.79s. Confirmed 0 clips exceed 60s ($\max = 29.30\text{s} \le 60.0\text{s}$).
   - **Clamp Method Distribution:** 3 clips `none` (60%), 2 clips `sentence_boundary` (40%), 0 `raw_fallback` (0%). Zero raw chops.
@@ -110,21 +110,21 @@
   - **LLM Gateway & Parser Hardening:** Enhanced `llm_client.py` with preamble stripping, code-fence extraction, and chunked SSE stream parsing; updated `temporal_binner.py` with explicit second ranges `[start_sec - end_sec]`.
   - **Over-Length Duration Clamp Exercised Live:** Verified live over-length candidate handling with `max_length_sec=45.0s`. Candidate 1 raw duration was 70.30s ($674.70\text{s} - 745.00\text{s}$); duration clamp snapped end to Whisper sentence boundary at $719.21\text{s}$ (`sentence_boundary`, final duration $44.51\text{s} \le 45.0\text{s}$). Candidate 2 raw duration was 71.60s ($1108.40\text{s} - 1180.00\text{s}$) with continuous dance music; duration clamp logged warning and executed `raw_fallback` at $1153.40\text{s}$ (final duration $45.00\text{s}$).
   - **Full Test Suite:** 82/82 unit tests passing (311.34s).
-- **Session 19 (Step 2: AI Voiceover Script Generator, Two-Pass Offset Engine & End-to-End Browser Verification):** ✅ 100% Complete
+- **Session 19 (Step 2: AI Voiceover Script Generator, Two-Pass Offset Engine & End-to-End Browser Verification):**  100% Complete
   - **Root Cause & Fix for Inaudible Voiceover in Rendered Video (`audio_mixer.py`):** Uncovered a silent FFmpeg filter graph bug: in `mix_audio_tracks()`, `[vo_delayed]` was fed directly into `sidechaincompress` as a sidechain detector AND then reused in `amix`. Because FFmpeg filter labels are single-consumer DAG nodes, FFmpeg silently discarded `[vo_delayed]` from `amix`, mixing source audio with itself! Fixed by adding `aformat=sample_rates=44100:channel_layouts=stereo`, `volume=1.8`, `asplit=2[vo_sc][vo_mix]`, and `amix=...:normalize=0`. Forensically verified by transcribing the final re-rendered MP4 video with Faster-Whisper: voiceover was captured loud and clear: `[0.00s - 4.30s]: "Wait until you see what happens next in this clip. I said that's your time, bro"`.
-  - **Instant In-Browser Audio Preview:** Added direct preview audio caching (`vo_preview_{clip_id}.wav`) and `▶️ Listen to Preview` button in the UI, allowing users to audition Kokoro voiceover audio in 0.1s without waiting for video re-rendering.
+  - **Instant In-Browser Audio Preview:** Added direct preview audio caching (`vo_preview_{clip_id}.wav`) and ` Listen to Preview` button in the UI, allowing users to audition Kokoro voiceover audio in 0.1s without waiting for video re-rendering.
   - **Two-Pass Actual Duration Placement Engine (`gap_detector.py` & `routes.py`):** Eliminated the latent overflow cutoff risk where Outro CTA duration from real Kokoro synthesis exceeded average wps estimates. Outro CTA and Hype Reaction now measure actual spoken duration directly via Kokoro ONNX inference before placement, anchoring the audio to finish with *exactly* the specified buffer (0.50s margin). Re-tested on real 44.51s clip: generated Outro CTA script (9 words, 2.84s actual audio), computed offset **41.17s**, leaving **$44.51 - (41.17 + 2.84) = \mathbf{0.50s}$ EXACT buffer**.
   - **Forensic `ffprobe` Verification on Actual Rendered Media (`media/.../clips/clip_*_rerendered.mp4`):** Executed real browser re-render composite to disk. Measured raw output files directly: `vo_*.wav` duration = **2.837s**, `mixed_*.aac` duration = **44.532s**, `clip_*_rerendered.mp4` duration = **44.560s**. Applied start offset = **41.17s**; voiceover finishes at $41.17 + 2.837 = \mathbf{44.007s}$, leaving an exact measured tail buffer of $44.51 - 44.007 = \mathbf{0.503s}$ before clip cut with zero speech chop.
-  - **Content-Aware Punchline Anchoring for Hype Reaction (`script_generator.py`):** Fixed relative offset calculation against `clip_start_sec`. Analyzed real Whisper dialogue: detected climax punchline beat `"Koyala?"` at $697.46\text{s}$ (relative offset $+22.76\text{s}$ into clip). Computed placement offset at **$22.96\text{s}$** ($+0.2\text{s}$ post-punchline), guaranteeing voiceover speaks *after* the punchline concludes without overlapping dialog. Live UI verified: drafted script (`11 words`), offset badge `📍 Audio placement starts at: 23.0s`.
-  - **Silence Gap Anchoring for Explainer:** Analyzed real Whisper dialogue silence gaps: detected qualifying pause of $3.31\text{s}$ between $711.28\text{s}$ and $714.59\text{s}$ ($36.58\text{s}$ into clip). Computed placement offset at **$36.78\text{s}$**. Live UI verified: drafted script (`20 words`), offset badge `📍 Audio placement starts at: 36.8s`.
+  - **Content-Aware Punchline Anchoring for Hype Reaction (`script_generator.py`):** Fixed relative offset calculation against `clip_start_sec`. Analyzed real Whisper dialogue: detected climax punchline beat `"Koyala?"` at $697.46\text{s}$ (relative offset $+22.76\text{s}$ into clip). Computed placement offset at **$22.96\text{s}$** ($+0.2\text{s}$ post-punchline), guaranteeing voiceover speaks *after* the punchline concludes without overlapping dialog. Live UI verified: drafted script (`11 words`), offset badge ` Audio placement starts at: 23.0s`.
+  - **Silence Gap Anchoring for Explainer:** Analyzed real Whisper dialogue silence gaps: detected qualifying pause of $3.31\text{s}$ between $711.28\text{s}$ and $714.59\text{s}$ ($36.58\text{s}$ into clip). Computed placement offset at **$36.78\text{s}$**. Live UI verified: drafted script (`20 words`), offset badge ` Audio placement starts at: 36.8s`.
   - **Sanitized Prompts & Fallback Templates:** Eliminated internal project/episode metadata leaks (e.g. `"latent e5"`). Replaced fallback templates with natural viewer-facing copy; tested 3 consecutive Hook Intro generations: zero leaked codes, all grounded in dialogue. Added **permanent 7-test regression suite** (`TestScriptNeverLeaksProjectTitle`) covering all 4 fallback templates, parametrized `enforce_word_count` across all styles, and source-code drift detection — guaranteeing any future prompt/template change that reintroduces metadata leaks is caught automatically in CI.
   - **Live Browser End-to-End Verification (`browser_subagent`):** Captured live UI evidence across all 4 styles: `live_hook_intro_success`, `live_outro_cta_success`, `final_clip_rendered` (Hype Reaction with video preview and yellow karaoke highlights), and `live_explainer_success`. Full WebP browser recordings archived.
   - **Full Test Suite:** **100/100** unit tests passing (326.23s). Next.js production build passing with zero errors. Fixed `NameError: name 'Path' is not defined` caused by missing top-level `from pathlib import Path` import in `script_generator.py` (the `output_audio_path` type annotation used `Path` at module scope but it was only imported locally).
-- **Session 20 (Reclip Deduplication & Pipeline Progress Resilience):** ✅ 100% Complete
+- **Session 20 (Reclip Deduplication & Pipeline Progress Resilience):**  100% Complete
   - **Reclip Duplication Bugfix (`select.py` & `render.py`):** Fixed an architecture flaw where clicking "Generate More Clips" with an unchanged LLM prompt resulted in identical time-bounds being repeatedly inserted as new database rows, causing the render worker to mismatch them against old rows and leaving new rows permanently hanging. `select.py` now cross-references `time_bounds` against existing DB clips before insertion, generating and attaching explicit `clip_id`s in `selections.json`. `render.py` now maps renders directly by `clip_id` instead of loose time boundaries.
   - **Pipeline Progress Broadcasting (`progress.py`):** Fixed a bug where combined pipeline workers (like `render` handling both cropping and captioning) were only updating the first matched job record via `.first()`, leaving secondary stage badges (like Caption) permanently stuck in `pending` on fresh projects. Refactored the progress tracker to execute a bounded `.all()` loop, guaranteeing all aliased pipeline UI badges synchronously reflect underlying worker progress.
 
-- **Session 21 (Launcher Stability, Latent E05 State Recovery & Granular Background Progress):** ✅ 100% Complete
+- **Session 21 (Launcher Stability, Latent E05 State Recovery & Granular Background Progress):**  100% Complete
   - **Service Orchestration Hardening (`start.bat`, `start-v2.bat`, `stop.bat`):** Created `stop.bat` for clean 1-click process shutdown. Enhanced `start.bat` with pre-flight port cleanup (Port 8000 & 3000) and Celery termination to prevent port-bind collisions and duplicate worker queue contention. Added Docker daemon health check and PostgreSQL readiness pause.
   - **Database State Healing for Latent E05 (`0a6e8175`):** Healed project state in PostgreSQL from stale `transcribing` to `done`, updated `Job(stage="transcribe")` to `success` (100%), and cleaned up duplicate pending jobs so dashboard and project header accurately reflect the 20 generated/approved clips.
   - **Eliminated "Breathing Bar" during Transcription:** Replaced indeterminate progress pulse in `apps/web/src/app/project/[id]/page.tsx` with dynamic progress bars and descriptive background task details.
@@ -135,7 +135,7 @@
     4. Timeline Consolidation & Final Audit (95% to 100%).
   - **Test Suite Verification:** 101/101 Python core tests passing; 12/12 face tracker tests passing; Next.js 16 TypeScript typecheck clean with 0 errors.
 
-- **Session 22 (Voiceover Re-render Event Loop Bugfix & Full Browser Smoke Test):** ✅ 100% Complete
+- **Session 22 (Voiceover Re-render Event Loop Bugfix & Full Browser Smoke Test):**  100% Complete
   - **Root Cause & Fix for Re-render "Failed to fetch":** When users triggered video re-rendering with voiceover from Clip Studio (`/project/[id]/clip/[clipId]`), FastAPI's async route `rerender_single_clip` invoked `render_clip` in `render_engine.py`, which executed `asyncio.run(_run_ffmpeg_async())`. Calling `asyncio.run()` within a running event loop threw `RuntimeError: asyncio.run() cannot be called from a running event loop`. Because the unhandled error bypassed standard CORS response headers, the browser's `fetch()` threw `TypeError: Failed to fetch`.
   - **Event Loop Decoupling in Render Engine:** Updated `render_clip` in `packages/python-core/clipforge_core/services/render_engine.py` to check `asyncio.get_running_loop()`. If an event loop is running, it runs `_run_ffmpeg_async()` in an isolated `ThreadPoolExecutor(max_workers=1)`, eliminating the event loop collision and ensuring smooth asynchronous FFmpeg execution with real-time progress callbacks.
   - **Global Exception & CORS Hardening:** Added `@app.exception_handler(Exception)` to `apps/api/app/main.py` ensuring all unexpected errors are logged with full stack traces and returned as structured JSON with valid CORS headers, preventing opaque `Failed to fetch` errors.
@@ -144,7 +144,7 @@
   - **Live Browser Smoke Test Verified:** End-to-end verification via `browser_subagent` confirmed successful clip re-render with Kokoro TTS (`af_nicole`), 9:16 vertical crop, karaoke subtitles, and audio ducking (HTTP 200), clean project review pipeline status, and functioning dashboard and new project creation workflows.
   - **Full Test Suite Verification:** **101/101** unit tests passing (100% pass rate in 467.01s). Next.js production build and TypeScript typecheck passing with zero errors.
 
-- **Session 23 (Queue Bottleneck Diagnosis, Dashboard Auto-Polling & Launcher Celery Hardening):** ✅ 100% Complete
+- **Session 23 (Queue Bottleneck Diagnosis, Dashboard Auto-Polling & Launcher Celery Hardening):**  100% Complete
   - **Diagnosed "Stuck in QUEUED" Root Causes:**
     1. The user's submitted video (`https://www.youtube.com/watch?v=c9jMdRBRFDA`) is explicitly designated as a **Private Video** on YouTube, causing `yt-dlp` to fail with `ERROR: [youtube] c9jMdRBRFDA: Private video`.
     2. Celery was previously halted, leaving tasks queued in Redis `ingest` queue without an active consumer.
@@ -156,7 +156,7 @@
   - **Dual Worker Dedicated Architecture (`start.bat`):** Upgraded launcher to spawn two isolated worker processes (`ingest_worker` for I/O bound downloads and fast LLM queries, and `compute_worker` for Whisper transcription, scene detection, and FFmpeg renders), completely eliminating queue stalling where new video submissions had to wait behind hour-long transcriptions.
   - **Test Suite Verification:** 101/101 Python unit tests passing; Next.js 16 TypeScript typecheck passing with 0 errors.
 
-- **Overall v2 Upgrade Roadmap:** ✅ Step 1 & Step 2 Fully Implemented, Hardened, and Verified End-to-End. Production Ready.
+- **Overall v2 Upgrade Roadmap:**  Step 1 & Step 2 Fully Implemented, Hardened, and Verified End-to-End. Production Ready.
 
 ## v1 Baseline
 - `master` branch contains the QA-verified v1 codebase (commit `f342cbe`).
@@ -165,38 +165,38 @@
 
 ## v2 Upgrade Status
 - Product specification: `DOC/context2-upgrade.md` (source of truth)
-- Product policy: `docs/PRODUCT_POLICY.md` ✅
-- Architecture decisions: `docs/DECISIONS.md` (ADR-001 through ADR-010 updated with AMD Ryzen 7 + 32GB RAM profile) ✅
-- Render manifest schema: `docs/RENDER_MANIFEST_SCHEMA.json` ✅
-- Master task list: `TASKS.md` ✅
-- Monorepo structure (`apps/web`, `apps/api`, `apps/worker`, `packages/contracts`, `packages/python-core`, `infra`) ✅
-- Mandatory Rights Declaration & Risk Label System (Section 2.2, 2.3) ✅
-- Source Ingestion (yt-dlp + local file) & ffprobe extraction (`SourceAsset` DB table) ✅
-- Faster-Whisper word-level transcription worker ✅
-- PySceneDetect scene boundary detection worker ✅
-- MediaPipe subject/face tracking service with center-crop fallback ✅
-- Transformation Score Engine (0–100) across 5 pillars (Section 2.4) ✅
-- Brief-Aware Candidate Selection with LLM Gateway & retry logic ✅
-- Candidate ranking, scene snapping, and deduplication logic ✅
-- Professional Render Engine (9:16 reframe, blurred background, loudnorm -14 LUFS) ✅
-- ASS Subtitle Generator with 4 presets (Bold Karaoke, Minimal, Clean Subtitle, None) ✅
-- Deterministic Render Manifest generation conforming to schema ✅
-- Editorial Overlay Generator (Hook Cards, Lower Thirds, CTA End Cards) ✅
-- Factual Claim & Sensitivity Detector ✅
-- Pre-Export Rights Acknowledgement Modal & Transformation Warning Panel ✅
-- Voiceover TTS Synthesis Engine (5 studio voice personas) ✅
-- Sidechain Audio Ducking Mixer (-12dB source ducking, -14.0 LUFS mastering) ✅
-- Royalty-Free Background Music Library (ambient, lo-fi, upbeat, cinematic) ✅
-- Motion & Visual Effects Engine (8 social vertical video effects) ✅
-- Single Clip Editor Studio & Before/After Comparison Player ✅
-- Brand Kit Data Model & CRUD APIs ✅
-- Disk Asset Retention & Temp Media Cleanup Service ✅
-- Stage-Level Pipeline Retry & Error Recovery (`POST /api/projects/{id}/retry-stage`) ✅
-- In-Product "Rights and Originality Checklist" Component ✅
-- Local-first Storage System with MinIO / S3 fallback ✅
-- Local Workspace Entity & Solo Creator mode ✅
-- Server-Sent Events (SSE) `/api/projects/{id}/events` & `/api/projects/{id}/audit-trail` ✅
-- Test fixture set (3 synthetic MP4 files) & 42/42 passing tests ✅
+- Product policy: `docs/PRODUCT_POLICY.md` 
+- Architecture decisions: `docs/DECISIONS.md` (ADR-001 through ADR-010 updated with AMD Ryzen 7 + 32GB RAM profile) 
+- Render manifest schema: `docs/RENDER_MANIFEST_SCHEMA.json` 
+- Master task list: `TASKS.md` 
+- Monorepo structure (`apps/web`, `apps/api`, `apps/worker`, `packages/contracts`, `packages/python-core`, `infra`) 
+- Mandatory Rights Declaration & Risk Label System (Section 2.2, 2.3) 
+- Source Ingestion (yt-dlp + local file) & ffprobe extraction (`SourceAsset` DB table) 
+- Faster-Whisper word-level transcription worker 
+- PySceneDetect scene boundary detection worker 
+- MediaPipe subject/face tracking service with center-crop fallback 
+- Transformation Score Engine (0–100) across 5 pillars (Section 2.4) 
+- Brief-Aware Candidate Selection with LLM Gateway & retry logic 
+- Candidate ranking, scene snapping, and deduplication logic 
+- Professional Render Engine (9:16 reframe, blurred background, loudnorm -14 LUFS) 
+- ASS Subtitle Generator with 4 presets (Bold Karaoke, Minimal, Clean Subtitle, None) 
+- Deterministic Render Manifest generation conforming to schema 
+- Editorial Overlay Generator (Hook Cards, Lower Thirds, CTA End Cards) 
+- Factual Claim & Sensitivity Detector 
+- Pre-Export Rights Acknowledgement Modal & Transformation Warning Panel 
+- Voiceover TTS Synthesis Engine (5 studio voice personas) 
+- Sidechain Audio Ducking Mixer (-12dB source ducking, -14.0 LUFS mastering) 
+- Royalty-Free Background Music Library (ambient, lo-fi, upbeat, cinematic) 
+- Motion & Visual Effects Engine (8 social vertical video effects) 
+- Single Clip Editor Studio & Before/After Comparison Player 
+- Brand Kit Data Model & CRUD APIs 
+- Disk Asset Retention & Temp Media Cleanup Service 
+- Stage-Level Pipeline Retry & Error Recovery (`POST /api/projects/{id}/retry-stage`) 
+- In-Product "Rights and Originality Checklist" Component 
+- Local-first Storage System with MinIO / S3 fallback 
+- Local Workspace Entity & Solo Creator mode 
+- Server-Sent Events (SSE) `/api/projects/{id}/events` & `/api/projects/{id}/audit-trail` 
+- Test fixture set (3 synthetic MP4 files) & 42/42 passing tests 
 
 ## Phases
 - **Phase 0 (Policy & Docs):** [x] Completed
@@ -207,18 +207,18 @@
 - **Phase 5 (Editorial Transformation):** [x] Completed
 - **Phase 6 (Voiceover & Audio):** [x] Completed
 - **Phase 7 (Motion Effects):** [x] Completed
-- **Session 24 (Stacked Context + Speaker Layout & Watertight Speaker Detection — v2):** ✅ 100% Complete
+- **Session 24 (Stacked Context + Speaker Layout & Watertight Speaker Detection — v2):**  100% Complete
   - **Mandatory Confirmation 1 (Dynamic Crop Actually Moves Per-Frame):** Rendered 20s clip on India's Got Latent fixture (`scratch/confirmation_1/latent_stacked_speaker.mp4`) with `crop_mode="stacked_speaker"`. Extracted frames at $t=2.0\text{s}$ (bottom band centered at $x=958$ on right speaker) and $t=17.0\text{s}$ (bottom band centered at $x=0$ on left speaker). Measured $958\text{px}$ dynamic shift (49.9% of source width) following active speaker changes.
   - **Mandatory Confirmation 2 (Filter Graph Command-Length Handling):** Passed complex filtergraphs via `-filter_complex_script` with temporary files, avoiding Windows command-line truncation. Validated on a $58\text{-second}$ clip with 60 dynamic keyframes, rendering cleanly in $55.03\text{s}$ to $1080\times 1920$.
   - **Watertight Speaker Detection & Dwell Gating (`face_tracker.py`):** Added `tracking_mode="standard" | "enhanced"`. Preserved exact standard scoring formula (`mar_variance * 10.0 + mar * 2.0`), while enhanced mode strictly implements the approved fused scoring formula (`visual_score * 0.6 + stability_score * 0.3 + recency_score * 0.1`), 2-frame dwell hysteresis, and silent group fallback drifting towards center.
   - **Stacked Context Layout Engine (`render_engine.py`):** Constructed $1080\times 1920$ canvas with top band ($710\text{px}$, 16:9 padded letterbox), bottom band ($1210\text{px}$, dynamic close-up), and 2px divider (`color=white@0.8` at $y=709$ drawn in-place across the seam so canvas height is exactly $710+1210=1920\text{px}$). Configured `MarginV: 140` in `caption_renderer.py` for safe bottom-band captioning.
   - **Schemas, Migrations & API Routes:** Updated `ProjectCreate` and `ClipRerenderRequest` schemas; added `ck_projects_crop_mode` check constraint and Alembic migration `8a2b3c4d5e6f`; wired `focal_timeline` slicing into `apps/api/app/api/routes.py`.
-  - **Frontend UI (`apps/web`):** Added 4th framing mode button `📺 Stacked Context` on `/new` project form and Clip Studio `/project/[id]/clip/[clipId]`.
+  - **Frontend UI (`apps/web`):** Added 4th framing mode button ` Stacked Context` on `/new` project form and Clip Studio `/project/[id]/clip/[clipId]`.
   - **Non-Negotiable Regression Requirement 3:** Exact match confirmed on baseline `face_track` crop coordinates before and after changes (`x=944, y=0, w=607, h=1080`).
-  - **Live Localhost Smoke Test & Real-Time Re-render:** Launched servers on localhost:3000 (Next.js 16) and localhost:8000 (FastAPI) with active Celery workers. Ran browser subagent verifying `/dashboard`, `/new` (confirming `📺 Stacked Context` button is active and selectable), and Clip Studio `/project/[id]/clip/[clipId]`. Selected `📺 Stacked Context` + `⚡ Bold Karaoke` captions, triggered re-render, and verified live video playback showing top 16:9 context, 2px divider, bottom speaker tracking, and safe-zone karaoke captions.
+  - **Live Localhost Smoke Test & Real-Time Re-render:** Launched servers on localhost:3000 (Next.js 16) and localhost:8000 (FastAPI) with active Celery workers. Ran browser subagent verifying `/dashboard`, `/new` (confirming ` Stacked Context` button is active and selectable), and Clip Studio `/project/[id]/clip/[clipId]`. Selected ` Stacked Context` + ` Bold Karaoke` captions, triggered re-render, and verified live video playback showing top 16:9 context, 2px divider, bottom speaker tracking, and safe-zone karaoke captions.
   - **Full Test Suite & Build Verification:** 117/117 Python core tests passing; Next.js 16 build passing cleanly.
 
-- **Session 25 (Voiceover Studio Manifest Persistence, State Hydration & Comprehensive Full-Feature Smoke Test):** ✅ 100% Complete
+- **Session 25 (Voiceover Studio Manifest Persistence, State Hydration & Comprehensive Full-Feature Smoke Test):**  100% Complete
   - **Root Cause Diagnosed & Resolved (Voiceover Not Applied on Studio Re-render):**
     - Identified that `apps/web/src/app/project/[id]/clip/[clipId]/page.tsx` loaded the clip record but never hydrated local React states (`voiceoverText`, `cropMode`, `captionStyle`, `voiceId`, `musicTrack`, `selectedEffects`) from `clip.render_manifest`. On page load/reload, `voiceoverText` defaulted to empty string `""` and `cropMode` defaulted to `face_track`. When users clicked re-render without freshly regenerating the script in that browser session, an empty voiceover string was dispatched, causing `audio_mixer` to log `VO=no`.
     - Identified that `apps/api/app/api/routes.py` omitted writing `editorial.narration_script`, `audio.voice_id`, `audio.voiceover_start_offset_sec`, and `audio.music_track` into `manifest.json` on re-render, preventing subsequent reloads from retaining audio settings.
@@ -229,50 +229,50 @@
   - **Frontend Studio State Hydration & Live Status Badging (`page.tsx` & `api.ts`):**
     - Added full manifest hydration in `fetchClip()` across `crop.mode`, `captions.preset`, `editorial.narration_script`, `audio.voice_id`, `audio.voiceover_start_offset_sec`, `audio.music_track`, and `effects.layers`.
     - Added real-time Active Features Pill Bar directly above the video player, dynamically surfacing:
-      * Layout mode: `📺 Stacked Context` / `🌫️ Blurred BG` / `📐 Center Crop` / `👤 Face Track 9:16`
-      * Caption preset: `💬 bold karaoke` / `💬 minimal` / `💬 clean subtitle` / `🚫 No Captions`
-      * Studio voice persona: `🎙️ VO: adam` / `🎙️ VO: bella` (or `🎙️ No Voiceover`)
-      * Ambient music bed: `🎵 lofi beats` / `🎵 ambient focus` / `🎵 upbeat tech` (or `🎵 No Music`)
-      * Active visual effects: `✨ X Effects` (amber badge)
+      * Layout mode: ` Stacked Context` / ` Blurred BG` / ` Center Crop` / ` Face Track 9:16`
+      * Caption preset: ` bold karaoke` / ` minimal` / ` clean subtitle` / ` No Captions`
+      * Studio voice persona: ` VO: adam` / ` VO: bella` (or ` No Voiceover`)
+      * Ambient music bed: ` lofi beats` / ` ambient focus` / ` upbeat tech` (or ` No Music`)
+      * Active visual effects: ` X Effects` (amber badge)
       * Transformation score badge (`Score: XX/100`)
     - Updated `handleRerender` to re-fetch full clip details (`await fetchClip()`) immediately upon render completion.
   - **Live Browser Smoke Test & Multi-Feature Studio Verification (`clip/32816f29-9019-4dd3-82cb-8df82eb0e6dc`):**
     - Tested Dog Naming Disaster clip (`1222.3s - 1260.0s`).
     - Configured and combined all major creative features simultaneously:
-      1. Layout: `📺 Stacked Context` (16:9 context top + dynamic speaker zoom bottom)
-      2. Captions: `⚡ Bold Karaoke` (yellow active-word bounce styling)
+      1. Layout: ` Stacked Context` (16:9 context top + dynamic speaker zoom bottom)
+      2. Captions: ` Bold Karaoke` (yellow active-word bounce styling)
       3. Studio Voice Persona: `Adam — Clear & Punchy (US Male)` (`am_adam`)
       4. Auto-Drafted Script: Hook Intro (*"Dog lovers, prepare for a surprise!"*, 41 chars, 2.65s audio duration, starts at 0.5s)
-      5. Ambient Music: `☕ Chill Lo-Fi` (`lofi_beats` bed with dynamic -8dB speech ducking)
-      6. Visual Effects: `🎞️ Film Grain`
+      5. Ambient Music: ` Chill Lo-Fi` (`lofi_beats` bed with dynamic -8dB speech ducking)
+      6. Visual Effects: ` Film Grain`
     - Re-rendered clip: Kokoro TTS synthesized Adam's voiceover, `EffectsEngine` applied film grain, and `AudioMixer` completed 3-channel mix (source dialogue ducked -12dB + voiceover + lo-fi music ducked -8dB, mastered to -14 LUFS) with `VO=yes, Music=yes`.
-    - Studio UI dynamically updated with active badges: `📺 Stacked Context` | `💬 bold karaoke` | `🎙️ VO: adam` | `🎵 lofi beats` | `✨ 1 Effect`.
+    - Studio UI dynamically updated with active badges: ` Stacked Context` | ` bold karaoke` | ` VO: adam` | ` lofi beats` | ` 1 Effect`.
     - Captured visual confirmation screenshot: `smoke_test_complete_1788700565559.png`.
   - **Test Suite & Typecheck Verification:**
     - Next.js 16 build passing typecheck and compiling with 0 errors (`pnpm --filter @clipforge/web build`).
     - Python core tests: 16/16 tests passing in `test_speaker_dwell.py` and `test_stacked_render.py` in 18.76s.
 
 ## Key Capabilities (Production Ready)
-- Video Ingestion (YouTube URL via yt-dlp & Local Video files) ✅
-- Local Whisper AI Transcription (faster-whisper GPU/CPU) ✅
-- LLM Candidate Selection (Structured JSON output with candidate scoring) ✅
-- Editorial Script Generation (Hook intro, narration, and CTA templates) ✅
-- Automated Face-Tracking & Framing (BlazeFace 9:16 vertical crop) ✅
-- Active Speaker Detection & Dwell Hysteresis (MediaPipe FaceMesh 468 landmarks) ✅
-- Stacked Context + Speaker Layout (16:9 Context Top + Dynamic Speaker Zoom Bottom) ✅
-- Word-Level Karaoke Subtitles (ASS subtitle generator with per-word bounce) ✅
-- Motion & Visual Effects Engine (8 social vertical video effects) ✅
-- Single Clip Editor Studio & Before/After Comparison Player ✅
-- Voiceover TTS Synthesis Engine (Kokoro ONNX multi-persona with dynamic ducking) ✅
-- State Hydration & Live Active Feature Badges in Clip Studio ✅
-- Brand Kit Data Model & CRUD APIs ✅
-- Disk Asset Retention & Temp Media Cleanup Service ✅
-- Stage-Level Pipeline Retry & Error Recovery (`POST /api/projects/{id}/retry-stage`) ✅
-- In-Product "Rights and Originality Checklist" Component ✅
-- Local-first Storage System with MinIO / S3 fallback ✅
-- Local Workspace Entity & Solo Creator mode ✅
-- Server-Sent Events (SSE) `/api/projects/{id}/events` & `/api/projects/{id}/audit-trail` ✅
-- Test fixture set & 117/117 passing tests ✅
+- Video Ingestion (YouTube URL via yt-dlp & Local Video files) 
+- Local Whisper AI Transcription (faster-whisper GPU/CPU) 
+- LLM Candidate Selection (Structured JSON output with candidate scoring) 
+- Editorial Script Generation (Hook intro, narration, and CTA templates) 
+- Automated Face-Tracking & Framing (BlazeFace 9:16 vertical crop) 
+- Active Speaker Detection & Dwell Hysteresis (MediaPipe FaceMesh 468 landmarks) 
+- Stacked Context + Speaker Layout (16:9 Context Top + Dynamic Speaker Zoom Bottom) 
+- Word-Level Karaoke Subtitles (ASS subtitle generator with per-word bounce) 
+- Motion & Visual Effects Engine (8 social vertical video effects) 
+- Single Clip Editor Studio & Before/After Comparison Player 
+- Voiceover TTS Synthesis Engine (Kokoro ONNX multi-persona with dynamic ducking) 
+- State Hydration & Live Active Feature Badges in Clip Studio 
+- Brand Kit Data Model & CRUD APIs 
+- Disk Asset Retention & Temp Media Cleanup Service 
+- Stage-Level Pipeline Retry & Error Recovery (`POST /api/projects/{id}/retry-stage`) 
+- In-Product "Rights and Originality Checklist" Component 
+- Local-first Storage System with MinIO / S3 fallback 
+- Local Workspace Entity & Solo Creator mode 
+- Server-Sent Events (SSE) `/api/projects/{id}/events` & `/api/projects/{id}/audit-trail` 
+- Test fixture set & 117/117 passing tests 
 
 ## Phases
 - **Phase 0 (Policy & Docs):** [x] Completed
@@ -295,10 +295,10 @@
 - **20-Clip Generation Complete:** Project `709251b2-a7f1-46ac-9952-7467df4d667c` (*India's Got Latent S2 EP7 - 20 Best Shorts*, 53 min / 3207s) successfully processed from YouTube URL to 20 rendered vertical 9:16 shorts.
 - **Configured Settings Verified:**
   * Target: 20 clips (20s–60s duration).
-  * Framing: `📺 Stacked Context` (`stacked_speaker` mode: 16:9 context top + speaker zoom bottom).
-  * Subtitles: `⚡ Bold Karaoke` (`bold_karaoke` yellow active-word bounce pop).
-  * Music Bed: `🧘 Ambient Focus` with -12dB dynamic sidechain ducking.
-  * Selection Strategy: `🎭 Balanced Mix` with `🌐 Dynamic Temporal Binning`.
+  * Framing: ` Stacked Context` (`stacked_speaker` mode: 16:9 context top + speaker zoom bottom).
+  * Subtitles: ` Bold Karaoke` (`bold_karaoke` yellow active-word bounce pop).
+  * Music Bed: ` Ambient Focus` with -12dB dynamic sidechain ducking.
+  * Selection Strategy: ` Balanced Mix` with ` Dynamic Temporal Binning`.
   * Rights: `written_permission` ("Open license to cut shorts on this video").
 - **Pipeline Stages:** All 5 stages marked `success` 100% (Download, Transcribe, Select, Crop, Caption).
 - **Disk Outputs:** 20 rendered MP4s (`clip_1.mp4`–`clip_20.mp4`), ASS karaoke subtitle files, thumbnails, and Draft-07 manifests saved in `media/709251b2-a7f1-46ac-9952-7467df4d667c/clips/`.

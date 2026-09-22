@@ -59,9 +59,18 @@ async def _ensure_temp_user(session: AsyncSession) -> str:
     user = result.scalar_one_or_none()
 
     if not user:
-        user = User(id=user_id, email="dev@clipforge.local")
-        session.add(user)
-        await session.commit()
+        try:
+            user = User(id=user_id, email="dev@clipforge.local")
+            session.add(user)
+            await session.commit()
+        except Exception as e:
+            # Catch potential concurrent insert IntegrityError
+            await session.rollback()
+            from sqlalchemy.exc import IntegrityError
+            if isinstance(e, IntegrityError):
+                pass # Already created by another request
+            else:
+                raise
 
     return TEMP_USER_ID
 

@@ -12,6 +12,16 @@ export default function NewProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [briefs, setBriefs] = useState<CampaignBrief[]>([]);
 
+  // Theme state
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
+
   // Project Details
   const [title, setTitle] = useState("");
   const [sourceType, setSourceType] = useState<"youtube_url" | "local_folder">("youtube_url");
@@ -245,9 +255,35 @@ export default function NewProjectPage() {
               <p className="text-xs text-cf-muted">Rights-aware editorial studio</p>
             </div>
           </div>
-          <span className="text-[11px] px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium">
-            v2 Studio
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="p-2 rounded-lg border border-border bg-card text-cf-muted hover:text-foreground transition-colors"
+              title="Toggle Theme"
+            >
+              {theme === "light" ? (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              )}
+            </button>
+            <span className="text-[11px] px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium">
+              v2 Studio
+            </span>
+          </div>
         </div>
       </header>
 
@@ -264,7 +300,7 @@ export default function NewProjectPage() {
             <div className="space-y-1">
               <span className="font-semibold text-foreground">Transformation-Supporting Editorial Studio</span>
               <p>
-                ClipForge helps you add original commentary, structured layouts, and clear narration. Every export requires verified rights declaration and human review.
+                AutoClip helps you add original commentary, structured layouts, and clear narration. Every export requires verified rights declaration and human review.
               </p>
             </div>
           </div>
@@ -577,10 +613,10 @@ export default function NewProjectPage() {
               <label className="text-xs font-semibold text-cf-muted block">Framing &amp; Aspect Ratio</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {[
-                  { id: "face_track", label: "👤 Face Track 9:16", desc: "Auto-centers speaker" },
-                  { id: "blur_background", label: "🌁 Blurred BG", desc: "Ambient side-blur" },
-                  { id: "center", label: "🔲 Center Crop", desc: "Fixed center 9:16" },
-                  { id: "stacked_speaker", label: "📺 Stacked Context", desc: "Wide shot + speaker zoom" },
+                  { id: "face_track", label: " Face Track 9:16", desc: "Auto-centers speaker" },
+                  { id: "blur_background", label: " Blurred BG", desc: "Ambient side-blur" },
+                  { id: "center", label: " Center Crop", desc: "Fixed center 9:16" },
+                  { id: "stacked_speaker", label: " Stacked Context", desc: "Wide shot + speaker zoom" },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -604,10 +640,10 @@ export default function NewProjectPage() {
               <label className="text-xs font-semibold text-cf-muted block">Subtitle Typography Preset</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {[
-                  { id: "bold_karaoke", label: "⚡ Bold Karaoke", desc: "Yellow bounce pop" },
-                  { id: "minimal", label: "✨ Minimal White", desc: "Clean modern sans" },
-                  { id: "clean_subtitle", label: "📺 Clean Subtitle", desc: "Classic black bar" },
-                  { id: "none", label: "🚫 None", desc: "No burned-in text" },
+                  { id: "bold_karaoke", label: " Bold Karaoke", desc: "Yellow bounce pop" },
+                  { id: "minimal", label: " Minimal White", desc: "Clean modern sans" },
+                  { id: "clean_subtitle", label: " Clean Subtitle", desc: "Classic black bar" },
+                  { id: "none", label: " None", desc: "No burned-in text" },
                 ].map((c) => (
                   <button
                     key={c.id}
@@ -635,18 +671,18 @@ export default function NewProjectPage() {
 
               {selectedEffects.length > 2 && (
                 <div className="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] leading-tight">
-                  ⚠️ Stacking more than 2 effects may reduce visual clarity.
+                   Stacking more than 2 effects may reduce visual clarity.
                 </div>
               )}
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
-                  { id: "film_grain", label: "🎞️ Film Grain" },
-                  { id: "vignette", label: "🎬 Vignette" },
-                  { id: "zoom", label: "🔍 Push-In Zoom" },
-                  { id: "camera_shake", label: "📳 Handheld Shake" },
-                  { id: "rgb_split", label: "🌈 RGB Glitch" },
-                  { id: "vhs_noise", label: "📼 VHS Retro" },
+                  { id: "film_grain", label: " Film Grain" },
+                  { id: "vignette", label: " Vignette" },
+                  { id: "zoom", label: " Push-In Zoom" },
+                  { id: "camera_shake", label: " Handheld Shake" },
+                  { id: "rgb_split", label: " RGB Glitch" },
+                  { id: "vhs_noise", label: " VHS Retro" },
                 ].map((eff) => {
                   const isSelected = selectedEffects.includes(eff.id);
                   return (
@@ -672,7 +708,7 @@ export default function NewProjectPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-cf-muted">Default Studio Voice Persona</label>
                 <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
-                  ⚡ Offline Kokoro TTS
+                   Offline Kokoro TTS
                 </span>
               </div>
               <select
@@ -695,16 +731,16 @@ export default function NewProjectPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-cf-muted">Ambient Background Music Bed</label>
                 <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
-                  🎵 Sidechain Ducking (-12dB)
+                   Sidechain Ducking (-12dB)
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {[
-                  { id: "none", label: "🚫 No Music", desc: "Keep original audio clean" },
-                  { id: "ambient_focus", label: "🧘 Ambient Focus", desc: "Subtle minimal harmony" },
-                  { id: "lofi_beats", label: "☕ Chill Lo-Fi", desc: "Warm hip-hop groove" },
-                  { id: "upbeat_tech", label: "⚡ Upbeat Tech", desc: "High energy & punchy" },
-                  { id: "epic_cinematic", label: "🎬 Cinematic Tension", desc: "Dramatic orchestral build" },
+                  { id: "none", label: " No Music", desc: "Keep original audio clean" },
+                  { id: "ambient_focus", label: " Ambient Focus", desc: "Subtle minimal harmony" },
+                  { id: "lofi_beats", label: " Chill Lo-Fi", desc: "Warm hip-hop groove" },
+                  { id: "upbeat_tech", label: " Upbeat Tech", desc: "High energy & punchy" },
+                  { id: "epic_cinematic", label: " Cinematic Tension", desc: "Dramatic orchestral build" },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -745,17 +781,17 @@ export default function NewProjectPage() {
                 {[
                   {
                     id: "balanced",
-                    label: "🎭 Balanced Mix",
+                    label: " Balanced Mix",
                     desc: "Equal representation of contestant acts & judge banter",
                   },
                   {
                     id: "contestant_primary",
-                    label: "🎤 Contestant Acts",
+                    label: " Contestant Acts",
                     desc: "Focus on performances, setups, punchlines (≥70% contestant clips)",
                   },
                   {
                     id: "judges_primary",
-                    label: "⚖️ Judges Reactions",
+                    label: " Judges Reactions",
                     desc: "Focus on roasts, banter, facial reactions, commentary (≥70% judge clips)",
                   },
                 ].map((f) => (
@@ -783,17 +819,17 @@ export default function NewProjectPage() {
                 {[
                   {
                     id: "even_spread",
-                    label: "🌐 Dynamic Temporal Binning",
+                    label: " Dynamic Temporal Binning",
                     desc: "Spreads clips evenly across entire timeline into chronological acts",
                   },
                   {
                     id: "focus_window",
-                    label: "🎯 Custom Time Window",
+                    label: " Custom Time Window",
                     desc: "Extract clips strictly within a specific timeframe (e.g. 40:00 to 50:00)",
                   },
                   {
                     id: "top_moments",
-                    label: "⚡ Top Moments Only",
+                    label: " Top Moments Only",
                     desc: "Extracts highest scoring moments anywhere without temporal binning",
                   },
                 ].map((s) => (
@@ -894,7 +930,7 @@ export default function NewProjectPage() {
             {/* 5D: Hard Duration Cap Guarantee Badge */}
             <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-base">🛡️</span>
+                <span className="text-base"></span>
                 <div>
                   <span className="text-xs font-semibold text-primary block">Strict Hard Duration Guarantee</span>
                   <span className="text-[10px] text-cf-muted block">

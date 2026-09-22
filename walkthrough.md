@@ -1,6 +1,6 @@
 # Walkthrough: Stacked Context + Speaker Layout & Watertight Speaker Detection (v2)
 
-This document presents the technical architecture, execution results, visual evidence, and regression guarantees for the newly implemented **"Stacked Context"** framing mode (`stacked_speaker`) and enhanced speaker detection engine in ClipForge AI.
+This document presents the technical architecture, execution results, visual evidence, and regression guarantees for the newly implemented **"Stacked Context"** framing mode (`stacked_speaker`) and enhanced speaker detection engine in AutoClip.
 
 ---
 
@@ -126,11 +126,11 @@ To close the loop between backend rendering and the actual user-facing workflow,
 
 1. **Switch to `face_track` Mode:**
    * Selected `Face Track 9:16` button in Section 2 (*LAYOUT & CROP*).
-   * Clicked `⚡ Re-render Video (New Effects / Audio)`.
+   * Clicked ` Re-render Video (New Effects / Audio)`.
    * Video refreshed: single-pane continuous vertical 9:16 crop.
 2. **Switch to `stacked_speaker` Mode:**
-   * Selected `📺 Stacked Context` button in Section 2 (*LAYOUT & CROP*).
-   * Clicked `⚡ Re-render Video (New Effects / Audio)`.
+   * Selected ` Stacked Context` button in Section 2 (*LAYOUT & CROP*).
+   * Clicked ` Re-render Video (New Effects / Audio)`.
    * Video refreshed: dual-pane stacked context layout with 16:9 wide context on top, 2px white divider, and speaker zoom on bottom.
 
 ### Live UI Screenshots
@@ -214,10 +214,10 @@ graph TD
 ### 2. Frontend Production Build
 ```bash
 cd apps/web && npm run build
-▲ Next.js 16.3.3 (Turbopack)
-✓ Compiled successfully in 56s
-✓ Finished TypeScript in 11.6s
-✓ Generating static pages (7/7) in 732ms
+ Next.js 16.3.3 (Turbopack)
+ Compiled successfully in 56s
+ Finished TypeScript in 11.6s
+ Generating static pages (7/7) in 732ms
 ```
 All routes (`/`, `/dashboard`, `/new`, `/project/[id]`, `/project/[id]/clip/[clipId]`, `/settings`) compiled without errors.
 
@@ -231,12 +231,12 @@ A live end-to-end smoke test was performed across localhost (`http://localhost:3
    - Verified active dashboard with live project cards, clip status badges, and project selection.
 2. **New Project Form (`http://localhost:3000/new`):**
    - Section 4A ("Framing & Aspect Ratio") confirmed with all 4 buttons present in a 4-column responsive grid.
-   - Selected `📺 Stacked Context` and confirmed dynamic primary highlight styling.
+   - Selected ` Stacked Context` and confirmed dynamic primary highlight styling.
 3. **Clip Studio Live Re-render (`/project/355368d1.../clip/67c27ca4...`):**
    - Loaded clip `67c27ca4-567a-42df-9b7f-2224a1af4ef9` ($13.6\text{s} \to 33.1\text{s}$).
-   - Selected `📺 Stacked Context` in Section 2 (Layout & Crop).
-   - Selected `⚡ Bold Karaoke` in Section 3 (Caption Presets).
-   - Executed `⚡ Re-render Video (New Effects / Audio)`.
+   - Selected ` Stacked Context` in Section 2 (Layout & Crop).
+   - Selected ` Bold Karaoke` in Section 3 (Caption Presets).
+   - Executed ` Re-render Video (New Effects / Audio)`.
    - Re-rendering was completed via Celery worker + FFmpeg, and the updated video was automatically loaded into the video player.
    - Verified on player:
      * **Top band:** 16:9 context showing speaker + presentation whiteboard.
@@ -272,23 +272,23 @@ When testing single-clip re-rendering in the Clip Studio (`/project/[id]/clip/[c
    }
    ```
 2. **Active Features Status Pill Bar:** Added a floating HUD directly above the video player providing real-time feedback on what features are currently burned into the clip:
-   * Framing Mode badge (`📺 Stacked Context` / `👤 Face Track 9:16`)
-   * Caption Preset badge (`💬 bold karaoke`)
-   * Voiceover Persona badge (`🎙️ VO: adam` / `🎙️ No Voiceover`)
-   * Music Bed badge (`🎵 lofi beats` / `🎵 No Music`)
-   * Effects badge (`✨ 1 Effect`)
+   * Framing Mode badge (` Stacked Context` / ` Face Track 9:16`)
+   * Caption Preset badge (` bold karaoke`)
+   * Voiceover Persona badge (` VO: adam` / ` No Voiceover`)
+   * Music Bed badge (` lofi beats` / ` No Music`)
+   * Effects badge (` 1 Effect`)
    * Transformation Score badge (`Score: 75/100`)
 3. **Voice Persona Audio Preview:** Added `voice_id` parameter to `generate_voiceover_script()`, selecting British (`en-gb`) or US (`en-us`) phonemization matching the chosen Kokoro voice.
 4. **Backend Manifest Persistence:** Persisted full editorial and audio fields into `manifest.json` on both re-render and metadata save.
 
 ### End-to-End Live Browser Smoke Test
 A comprehensive live browser test was executed on clip `32816f29-9019-4dd3-82cb-8df82eb0e6dc` combining all major features:
-* **Framing Mode:** `📺 Stacked Context` (16:9 context top + speaker zoom bottom)
-* **Captions:** `⚡ Bold Karaoke` (yellow active-word bounce highlight)
+* **Framing Mode:** ` Stacked Context` (16:9 context top + speaker zoom bottom)
+* **Captions:** ` Bold Karaoke` (yellow active-word bounce highlight)
 * **Voiceover Persona:** `Adam — Clear & Punchy (US Male)` (`am_adam`)
 * **Voiceover Script:** Hook Intro (*"Dog lovers, prepare for a surprise!"*, 41 chars, 2.65s audio duration)
-* **Background Music:** `☕ Chill Lo-Fi` (`lofi_beats`)
-* **Visual Effect:** `🎞️ Film Grain`
+* **Background Music:** ` Chill Lo-Fi` (`lofi_beats`)
+* **Visual Effect:** ` Film Grain`
 
 #### Verification Result
 * **FFmpeg Multi-Track Audio Mixing:**
