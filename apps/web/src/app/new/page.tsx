@@ -12,15 +12,6 @@ export default function NewProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [briefs, setBriefs] = useState<CampaignBrief[]>([]);
 
-  // Theme state
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
 
   // Project Details
   const [title, setTitle] = useState("");
@@ -256,30 +247,7 @@ export default function NewProjectPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="p-2 rounded-lg border border-border bg-card text-cf-muted hover:text-foreground transition-colors"
-              title="Toggle Theme"
-            >
-              {theme === "light" ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-              )}
-            </button>
+
             <span className="text-[11px] px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium">
               v2 Studio
             </span>
@@ -289,23 +257,13 @@ export default function NewProjectPage() {
 
       {/* Form */}
       <main className="flex-1 px-6 py-8">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-8">
-          {/* Policy Banner */}
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-cf-muted flex items-start gap-3">
-            <div className="p-1 rounded-md bg-primary/20 text-primary mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <span className="font-semibold text-foreground">Transformation-Supporting Editorial Studio</span>
-              <p>
-                AutoClip helps you add original commentary, structured layouts, and clear narration. Every export requires verified rights declaration and human review.
-              </p>
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* LEFT COLUMN */}
+            <div className="space-y-6">
 
-          {/* Project Title */}
+              {/* Project Title */}
           <section className="space-y-3">
             <label className="text-sm font-semibold">Project Title (Optional)</label>
             <input
@@ -319,20 +277,7 @@ export default function NewProjectPage() {
 
           {/* Mandatory Rights Declaration */}
           <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold flex items-center gap-2">
-                  <span>1. Source Rights Basis</span>
-                  <span className="text-[10px] uppercase font-bold text-cf-accent bg-cf-accent/10 px-2 py-0.5 rounded">
-                    Mandatory
-                  </span>
-                </h2>
-                <span className="text-xs text-cf-muted">Policy Section 2.2</span>
-              </div>
-              <p className="text-xs text-cf-muted mt-1">
-                Select your rights basis for this source video to determine workflow readiness and compliance.
-              </p>
-            </div>
+            <h2 className="text-sm font-semibold">1. Source Rights Basis</h2>
 
             <div className="grid gap-2.5">
               {RIGHTS_DECLARATIONS.map((decl) => {
@@ -400,15 +345,7 @@ export default function NewProjectPage() {
 
           {/* Editorial Template Selector */}
           <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold">2. Editorial Transformation Template</h2>
-                <span className="text-xs text-cf-muted">Policy Section 2.5</span>
-              </div>
-              <p className="text-xs text-cf-muted mt-1">
-                Guides AI to structure clips with original commentary, hooks, and callouts.
-              </p>
-            </div>
+            <h2 className="text-sm font-semibold">2. Editorial Transformation Template</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
               {[
@@ -556,6 +493,10 @@ export default function NewProjectPage() {
               </div>
             )}
           </section>
+          </div> {/* End Left Column */}
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-6">
 
           {/* Output & Length Settings */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -596,17 +537,7 @@ export default function NewProjectPage() {
 
           {/* Section 4: Production & Brand Styling Kit */}
           <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold">4. Production &amp; Brand Styling Kit</h2>
-                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
-                  Batch Default
-                </span>
-              </div>
-              <p className="text-xs text-cf-muted mt-1">
-                Configure styling baseline for all generated clips. You can still fine-tune individual clips in the Studio later.
-              </p>
-            </div>
+            <h2 className="text-sm font-semibold">4. Production &amp; Brand Styling Kit</h2>
 
             {/* 4A: Layout & Crop */}
             <div className="space-y-2">
@@ -762,17 +693,7 @@ export default function NewProjectPage() {
 
           {/* Section 5: Timeline Window & Selection Strategy */}
           <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold">5. Timeline Window &amp; Selection Strategy</h2>
-                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
-                  Smart Spread
-                </span>
-              </div>
-              <p className="text-xs text-cf-muted mt-1">
-                Control where across the show clips are drawn from, balance contestant acts vs judge banter, and guarantee clip duration.
-              </p>
-            </div>
+            <h2 className="text-sm font-semibold">5. Timeline Window &amp; Selection Strategy</h2>
 
             {/* 5A: Content Focus Mode */}
             <div className="space-y-2">
@@ -1021,6 +942,9 @@ export default function NewProjectPage() {
               "Create Project & Start Ingestion"
             )}
           </button>
+          
+          </div> {/* End Right Column */}
+          </div> {/* End Grid */}
         </form>
       </main>
     </div>

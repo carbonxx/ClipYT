@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "react-hot-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <ThemeToggle />
         <Toaster position="bottom-right" toastOptions={{ className: 'dark-toast', style: { background: '#1E1E24', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' } }} />
       </body>
     </html>

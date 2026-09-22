@@ -20,7 +20,11 @@ from clipforge_core.celery_app import celery_app
 from clipforge_core.config import settings
 from clipforge_core.database import get_sync_session
 from clipforge_core.models import Clip, Job, Project, ProjectAuditEvent
-from clipforge_core.services.candidate_ranker import clamp_to_boundary, deduplicate_and_rank_candidates
+from clipforge_core.services.candidate_ranker import (
+    clamp_to_boundary,
+    deduplicate_and_rank_candidates,
+    snap_to_sentence_boundaries
+)
 from clipforge_core.services.llm_client import LLMClientError, llm_client
 from clipforge_core.services.temporal_binner import compute_temporal_bins, format_bin_directives, validate_bin_membership
 from clipforge_core.services.transformation_scorer import calculate_transformation_score
@@ -306,6 +310,14 @@ def select_clips(
         for raw in raw_clips:
             start_s = float(raw.get("start_sec", 0.0))
             end_s = float(raw.get("end_sec", start_s + min_length_sec))
+
+            # Snap LLM timestamps to exact sentence boundaries to prevent mid-sentence cutoffs
+            start_s, end_s = snap_to_sentence_boundaries(
+                start_sec=start_s,
+                end_sec=end_s,
+                transcript_segments=transcript_segments,
+                tolerance_sec=3.0,
+            )
 
             # Boundary-aware duration enforcement
             start_s, end_s, clamp_method = clamp_to_boundary(

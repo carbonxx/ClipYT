@@ -131,6 +131,48 @@ def snap_to_scene_boundaries(
     return round(snapped_start, 2), round(snapped_end, 2)
 
 
+def snap_to_sentence_boundaries(
+    start_sec: float,
+    end_sec: float,
+    transcript_segments: List[Dict[str, Any]],
+    tolerance_sec: float = 3.0,
+) -> tuple[float, float]:
+    """
+    Snap candidate start and end times to the nearest sentence boundary (transcript segment)
+    if within tolerance. Prevents clips from cutting off mid-sentence.
+    """
+    snapped_start = start_sec
+    snapped_end = end_sec
+    
+    # Snap start to nearest segment start
+    best_start = None
+    min_start_diff = tolerance_sec
+    for seg in transcript_segments:
+        seg_start = seg.get("start", 0.0)
+        diff = abs(start_sec - seg_start)
+        if diff <= min_start_diff:
+            min_start_diff = diff
+            best_start = seg_start
+            
+    if best_start is not None:
+        snapped_start = best_start
+
+    # Snap end to nearest segment end
+    best_end = None
+    min_end_diff = tolerance_sec
+    for seg in transcript_segments:
+        seg_end = seg.get("end", 0.0)
+        diff = abs(end_sec - seg_end)
+        if diff <= min_end_diff:
+            min_end_diff = diff
+            best_end = seg_end
+            
+    if best_end is not None:
+        snapped_end = best_end
+
+    return round(snapped_start, 2), round(snapped_end, 2)
+
+
 def deduplicate_and_rank_candidates(
     candidates: List[Dict[str, Any]],
     scenes: List[Dict[str, Any]] | None = None,

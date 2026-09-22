@@ -66,7 +66,7 @@
  * AutoClip — SaaS Light & Dark Themes
  */
 :root {
-  --background: #F8FAFC;
+  --background: #F1F5F9;
   --surface: #FFFFFF;
   --surface-raised: #FFFFFF;
   --foreground: #0F172A;
@@ -77,15 +77,15 @@
   --primary: #3B82F6;
   --primary-hover: #2563EB;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
+  --secondary: #E2E8F0;
   --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --muted: #E2E8F0;
+  --muted-foreground: #475569;
   --accent: #F97316;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
+  --border: #CBD5E1;
+  --input: #CBD5E1;
   --ring: #3B82F6;
   --chart-1: #3B82F6;
   --chart-2: #F97316;
@@ -96,39 +96,39 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --sidebar: #F8FAFC;
+  --sidebar: #F1F5F9;
   --sidebar-foreground: #0F172A;
   --sidebar-primary: #3B82F6;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E2E8F0;
+  --sidebar-accent: #CBD5E1;
   --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
+  --sidebar-border: #CBD5E1;
   --sidebar-ring: #3B82F6;
 }
 
 .dark {
-  --background: #0F172A;
-  --surface: #1E293B;
-  --surface-raised: #334155;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-  --primary: #3B82F6;
-  --primary-hover: #60A5FA;
-  --primary-foreground: #FFFFFF;
-  --secondary: #334155;
-  --secondary-foreground: #F8FAFC;
-  --muted: #334155;
-  --muted-foreground: #94A3B8;
+  --background: #09090B;
+  --surface: #18181B;
+  --surface-raised: #27272A;
+  --foreground: #FAFAFA;
+  --card: #18181B;
+  --card-foreground: #FAFAFA;
+  --popover: #18181B;
+  --popover-foreground: #FAFAFA;
+  --primary: #FAFAFA;
+  --primary-hover: #E4E4E7;
+  --primary-foreground: #09090B;
+  --secondary: #27272A;
+  --secondary-foreground: #FAFAFA;
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
   --accent: #F97316;
-  --accent-foreground: #FFFFFF;
+  --accent-foreground: #FAFAFA;
   --destructive: #EF4444;
-  --border: #334155;
-  --input: #334155;
-  --ring: #3B82F6;
-  --chart-1: #3B82F6;
+  --border: #27272A;
+  --input: #27272A;
+  --ring: #D4D4D8;
+  --chart-1: #FAFAFA;
   --chart-2: #F97316;
   --chart-3: #22C55E;
   --chart-4: #F59E0B;
@@ -137,14 +137,14 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --sidebar: #0F172A;
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #3B82F6;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #F8FAFC;
-  --sidebar-border: #334155;
-  --sidebar-ring: #3B82F6;
+  --sidebar: #09090B;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #FAFAFA;
+  --sidebar-primary-foreground: #09090B;
+  --sidebar-accent: #27272A;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #27272A;
+  --sidebar-ring: #D4D4D8;
 }
 
 @layer base {

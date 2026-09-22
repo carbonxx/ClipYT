@@ -47,7 +47,7 @@ function PipelineStage({
   const iconPath = STAGE_ICONS[stage] || "";
 
   return (
-    <div className={`rounded-xl border border-border/50 p-4 transition-all ${status === "running" ? "ring-1 ring-primary/30 shadow-lg shadow-primary/5" : ""}`}>
+    <div className={`rounded-xl border border-border shadow-sm p-4 transition-all ${status === "running" ? "ring-1 ring-primary/30 shadow-md shadow-primary/10" : ""}`}>
       <div className="flex items-center gap-3">
         <div className={`h-10 w-10 rounded-lg ${styles.bg} flex items-center justify-center flex-shrink-0`}>
           {status === "running" ? (
@@ -133,7 +133,7 @@ function ClipCard({
   };
 
   return (
-    <div className="rounded-xl bg-card border border-border/50 overflow-hidden transition-all hover:border-border flex flex-col">
+    <div className="rounded-xl bg-card border border-border shadow-sm overflow-hidden transition-all hover:border-primary/40 hover:shadow-md flex flex-col">
       {/* Video Preview */}
       <div className="aspect-[9/16] bg-zinc-900 flex items-center justify-center relative group overflow-hidden">
         {clip.file_url ? (
@@ -443,7 +443,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
       {/* Header */}
-      <header className="border-b border-border/50 px-6 py-4">
+      <header className="border-b border-border bg-card shadow-sm px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center gap-4">
           <Link href="/dashboard" className="text-cf-muted hover:text-foreground transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
@@ -784,7 +784,7 @@ export default function ProjectDetailPage() {
 
           {/* Transformation Readiness Score & Warning Banner (context2-upgrade.md Section 2.4) */}
           {clips.length > 0 && (
-            <section className="rounded-xl bg-card border border-border/60 p-5 space-y-4">
+            <section className="rounded-xl bg-card border border-border shadow-sm p-5 space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">

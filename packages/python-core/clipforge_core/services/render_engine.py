@@ -348,9 +348,7 @@ def render_clip(
 
     filter_script_file = None
     if crop_mode == "stacked_speaker":
-        filter_script_file = out.parent / f"{out.stem}_filter_complex.txt"
-        filter_script_file.write_text(video_filters, encoding="utf-8")
-        filter_args = ["-filter_complex_script", str(filter_script_file)]
+        filter_args = ["-filter_complex", video_filters]
     elif crop_mode == "blur_background":
         filter_args = ["-filter_complex", video_filters]
     else:
