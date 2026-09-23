@@ -330,15 +330,21 @@ def render_clip(
             f"[stacked]drawbox=y=709:w=1080:h={DIV_H}:c=white@0.8:t=fill{ass_filter}"
         )
     else:
-        # 9:16 Smart Crop / Reframe with focal_x
-        # Crop width for 9:16 from height H is H * 9/16
+        # 9:16 Smart Crop / Reframe with focal_timeline (dynamic) or focal_x (static)
         crop_w = int(src_h * 9.0 / 16.0)
-        face_center_x = max(0.0, min(1.0, focal_x)) * src_w
-        max_x = max(0, src_w - crop_w)
-        x_offset = int(max(0, min(max_x, face_center_x - (crop_w / 2.0))))
+        
+        if focal_timeline and len(focal_timeline) > 0:
+            crop_x_expr = _build_dynamic_crop_expr(
+                focal_timeline, start_sec, end_sec, src_w, crop_w
+            )
+        else:
+            face_center_x = max(0.0, min(1.0, focal_x)) * src_w
+            max_x = max(0, src_w - crop_w)
+            x_offset = int(max(0, min(max_x, face_center_x - (crop_w / 2.0))))
+            crop_x_expr = str(x_offset)
 
         video_filters = (
-            f"crop={crop_w}:{src_h}:{x_offset}:0,"
+            f"crop=w={crop_w}:h={src_h}:x='{crop_x_expr}':y=0,"
             f"scale=1080:1920:force_original_aspect_ratio=decrease,"
             f"pad=1080:1920:(ow-iw)/2:(oh-ih)/2{ass_filter}"
         )

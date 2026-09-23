@@ -47,22 +47,18 @@ You MUST respond with valid JSON matching the requested schema exactly. No markd
 # Content focus prompt directives
 _CONTENT_FOCUS_DIRECTIVES = {
     "balanced": (
-        "Select a balanced mix of clips: include both performer/contestant acts "
-        "(setups, performances, punchlines) AND host/judge reactions (commentary, "
-        "banter, roasts). Aim for roughly equal representation."
+        "Select a balanced mix of clips: include both high-energy action/highlight "
+        "moments AND conversational/insightful moments. Ensure diversity in the type of content selected."
     ),
     "contestant_primary": (
-        "PRIORITIZE contestant/performer moments: their setups, acts, performances, "
-        "jokes, and audience reactions to their work. In acts/windows where no active "
-        "contestant performance is occurring (e.g., initial host/panel introductions, "
-        "or final host wrap-up and award announcements), select the best highlight "
-        "moment for that act. Every assigned act must have a clip selected."
+        "PRIORITIZE action, core events, and high-intensity highlights. "
+        "Focus on the main subjects performing actions or delivering the core "
+        "entertainment value of the video. At least 70% of clips should be action/highlight driven."
     ),
     "judges_primary": (
-        "PRIORITIZE judge/host/panel moments: their commentary, roasts, banter, "
-        "reactions, and discussions. Include contestant content only when the "
-        "performance itself is the setup for a judge reaction. At least 70% of "
-        "clips should feature judges/hosts as the primary subject."
+        "PRIORITIZE commentary, deep insights, explanations, and reactions. "
+        "Focus on the speakers delivering thesis statements, educational takeaways, "
+        "or deep discussions. At least 70% of clips should feature insights or commentary as the primary subject."
     ),
 }
 

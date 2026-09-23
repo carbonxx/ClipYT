@@ -37,7 +37,7 @@ from clipforge_core.schemas import (
     ThumbnailRequest,
 )
 from clipforge_core.services.pipeline import create_pipeline_jobs, dispatch_pipeline, dispatch_reclip
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -1228,6 +1228,34 @@ async def cleanup_project_artifacts(project_id: str):
     from clipforge_core.services.cleanup import cleanup_project_temp_files
     res = cleanup_project_temp_files(project_id=project_id, max_age_hours=0.0)
     return res
+
+
+@router.post("/upload")
+async def upload_video_file(file: UploadFile = File(...)):
+    """
+    Handle direct video uploads from the browser.
+    Saves the file to a temporary location and returns the absolute path.
+    """
+    import os
+    import shutil
+    
+    # Ensure uploads directory exists
+    uploads_dir = Path(settings.MEDIA_DIR) / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate unique filename to avoid collisions
+    ext = ""
+    if file.filename:
+        ext = os.path.splitext(file.filename)[1]
+    
+    unique_filename = f"{uuid.uuid4()}{ext}"
+    file_path = uploads_dir / unique_filename
+    
+    # Save the file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {"file_path": str(file_path.resolve())}
 
 
 @router.post("/utils/browse-file")

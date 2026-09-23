@@ -1,6 +1,6 @@
 <div align="center">
 
-#  AutoClip v2
+#  AutoClip v1.0.1
 
 ### *Transform Long-Form Videos into High-Impact Viral Shorts & Reels — 100% Locally & Privately.*
 

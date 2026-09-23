@@ -17,6 +17,7 @@ export default function NewProjectPage() {
   const [title, setTitle] = useState("");
   const [sourceType, setSourceType] = useState<"youtube_url" | "local_folder">("youtube_url");
   const [sourceValue, setSourceValue] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Rights Declaration (Mandatory v2)
   const [rightsBasis, setRightsBasis] = useState<RightsBasis>("owned");
@@ -76,6 +77,7 @@ export default function NewProjectPage() {
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setSelectedFile(file);
     const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
     setSelectionBadge({
       type: "file",
@@ -170,8 +172,8 @@ export default function NewProjectPage() {
     e.preventDefault();
     setError(null);
 
-    if (!sourceValue.trim()) {
-      setError("Please enter a YouTube URL or local folder path");
+    if (!sourceValue.trim() && !selectedFile) {
+      setError("Please enter a YouTube URL, local folder path, or select a file");
       return;
     }
 
@@ -188,10 +190,25 @@ export default function NewProjectPage() {
     setSubmitting(true);
 
     try {
+      let finalSourceValue = sourceValue.trim();
+      let finalSourceType: "youtube_url" | "local_folder" | "upload" = sourceType;
+      
+      if (sourceType === "local_folder" && selectedFile) {
+        try {
+          const uploadRes = await api.uploadFile(selectedFile);
+          finalSourceValue = uploadRes.file_path;
+          finalSourceType = "upload";
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : "Failed to upload file");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const input: CreateProjectInput = {
         title: title.trim() || undefined,
-        source_type: sourceType,
-        source_value: sourceValue.trim(),
+        source_type: finalSourceType,
+        source_value: finalSourceValue,
         rights_basis: rightsBasis,
         rights_proof_url: rightsProofUrl.trim() || undefined,
         rights_notes: rightsNotes.trim() || undefined,
@@ -703,17 +720,17 @@ export default function NewProjectPage() {
                   {
                     id: "balanced",
                     label: " Balanced Mix",
-                    desc: "Equal representation of contestant acts & judge banter",
+                    desc: "Equal representation of all content types",
                   },
                   {
                     id: "contestant_primary",
-                    label: " Contestant Acts",
-                    desc: "Focus on performances, setups, punchlines (≥70% contestant clips)",
+                    label: " Action & Highlights",
+                    desc: "Focus on main events, setups, & punchlines (≥70% clips)",
                   },
                   {
                     id: "judges_primary",
-                    label: " Judges Reactions",
-                    desc: "Focus on roasts, banter, facial reactions, commentary (≥70% judge clips)",
+                    label: " Insights & Commentary",
+                    desc: "Focus on discussions, takeaways, & reactions (≥70% clips)",
                   },
                 ].map((f) => (
                   <button

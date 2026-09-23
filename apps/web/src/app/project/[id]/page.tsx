@@ -675,8 +675,8 @@ export default function ProjectDetailPage() {
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { id: "balanced", label: " Balanced", desc: "50/50 mix" },
-                    { id: "contestant_primary", label: " Contestants", desc: "≥70% acts" },
-                    { id: "judges_primary", label: " Judges", desc: "≥70% banter" },
+                    { id: "contestant_primary", label: " Highlights", desc: "≥70% action" },
+                    { id: "judges_primary", label: " Insights", desc: "≥70% discussion" },
                   ].map((f) => (
                     <button
                       key={f.id}

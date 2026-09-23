@@ -16,7 +16,7 @@ def clamp_to_boundary(
     min_length_sec: float,
     transcript_segments: List[Dict[str, Any]],
     scenes: List[Dict[str, Any]],
-    tolerance_sec: float = 5.0,
+    tolerance_sec: float = 15.0,
 ) -> Tuple[float, float, str]:
     """
     Clamp a clip's duration to [min_length_sec, max_length_sec] by finding
@@ -138,37 +138,29 @@ def snap_to_sentence_boundaries(
     tolerance_sec: float = 3.0,
 ) -> tuple[float, float]:
     """
-    Snap candidate start and end times to the nearest sentence boundary (transcript segment)
-    if within tolerance. Prevents clips from cutting off mid-sentence.
+    Snap candidate start and end times outwards to encompass the entire transcript segment
+    they fall into, ensuring words are never chopped in half.
     """
     snapped_start = start_sec
     snapped_end = end_sec
     
-    # Snap start to nearest segment start
-    best_start = None
-    min_start_diff = tolerance_sec
+    # If the LLM start timestamp falls anywhere inside a spoken segment, 
+    # pull the start time back to the beginning of that segment.
     for seg in transcript_segments:
-        seg_start = seg.get("start", 0.0)
-        diff = abs(start_sec - seg_start)
-        if diff <= min_start_diff:
-            min_start_diff = diff
-            best_start = seg_start
+        s = seg.get("start", 0.0)
+        e = seg.get("end", 0.0)
+        if s <= start_sec < e:
+            snapped_start = s
+            break
             
-    if best_start is not None:
-        snapped_start = best_start
-
-    # Snap end to nearest segment end
-    best_end = None
-    min_end_diff = tolerance_sec
-    for seg in transcript_segments:
-        seg_end = seg.get("end", 0.0)
-        diff = abs(end_sec - seg_end)
-        if diff <= min_end_diff:
-            min_end_diff = diff
-            best_end = seg_end
-            
-    if best_end is not None:
-        snapped_end = best_end
+    # If the LLM end timestamp falls anywhere inside a spoken segment,
+    # push the end time forward to the end of that segment.
+    for seg in reversed(transcript_segments):
+        s = seg.get("start", 0.0)
+        e = seg.get("end", 0.0)
+        if s < end_sec <= e:
+            snapped_end = e
+            break
 
     return round(snapped_start, 2), round(snapped_end, 2)
 
