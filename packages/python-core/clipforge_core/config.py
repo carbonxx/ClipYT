@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     R2_SECRET_ACCESS_KEY: str = ""
     R2_BUCKET_NAME: str = "clipforge-media"
 
+    # --- MinIO (S3-compatible local storage) ---
+    MINIO_ENDPOINT: str = "http://localhost:9000"
+    MINIO_ROOT_USER: str = "minioadmin"
+    MINIO_ROOT_PASSWORD: str = "minioadmin"
+    MINIO_BUCKET: str = "clipforge"
+
     # --- Supabase Auth ---
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""

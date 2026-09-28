@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "ClipForge AI shared core models, database, and pipeline services"
 requires-python = ">=3.11"
 dependencies = [
-    "sqlalchemy>=2.0.0",
+    "sqlalchemy[asyncio]>=2.0.0",
     "asyncpg>=0.30.0",
     "psycopg2-binary>=2.9.0",
     "pydantic>=2.0.0",
@@ -28,6 +28,7 @@ dependencies = [
     "kokoro-onnx>=0.6.1",
     "soundfile>=0.12.0",
     "espeakng-loader>=0.2.0",
+    "boto3>=1.34.0",
 ]
 
 [project.optional-dependencies]

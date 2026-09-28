@@ -293,6 +293,15 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
             manifest_path = clips_output_dir / f"clip_{clip_num}_manifest.json"
             manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
+            # Archive to MinIO
+            try:
+                from clipforge_core.services.storage import default_storage
+                default_storage.save_file(out_video_path, f"{project_id}/clips/{out_video_path.name}")
+                default_storage.save_file(out_thumb_path, f"{project_id}/clips/{out_thumb_path.name}")
+                default_storage.save_file(manifest_path, f"{project_id}/clips/{manifest_path.name}")
+            except Exception as e:
+                logger.error(f"[RenderWorker] Failed to archive clip {clip_id} to MinIO: {e}")
+
             # Relative media paths for web client
             rel_file_url = f"media/{project_id}/clips/{out_video_path.name}"
             rel_thumb_url = f"media/{project_id}/clips/{out_thumb_path.name}"

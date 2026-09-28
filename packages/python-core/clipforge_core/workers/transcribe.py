@@ -283,6 +283,13 @@ def transcribe_source(self, project_id: str, source_path: str) -> dict:
             "text_length": len(transcript["full_text"]),
         }
 
+        # Archive to MinIO
+        try:
+            from clipforge_core.services.storage import default_storage
+            default_storage.save_file(Path(transcript_path), f"{project_id}/transcript.json")
+        except Exception as e:
+            logger.error(f"[Transcribe] Failed to archive transcript to MinIO: {e}")
+
         _update_job_status(project_id, "success")
         logger.info(
             f"[Transcribe] Complete for project {project_id}: "

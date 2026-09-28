@@ -118,6 +118,7 @@ Select up to {clip_count} highlight candidates.
 - Target clip duration: nominally {min_length_sec} to {max_length_sec} seconds (the boundary-aware clamp engine will snap to valid boundaries). If a key exchange or routine naturally extends longer, provide the full natural scene range.
 - Clips should not overlap.
 - Hook Type must be one of: "question", "bold_statement", "surprising_stat", "story_loop", "controversial_thesis".
+- Score `editorial_potential` realistically from 0.0 to 1.0 based on hook strength and virality. DO NOT use the same score for all clips.
 - Keep reasoning brief (1 short sentence) and suggested_callouts concise.
 - Output JSON directly without any conversational preamble or thinking text.
 
@@ -131,7 +132,7 @@ Return a JSON object:
       "title": "Short punchy title",
       "hook_type": "question",
       "hook_text": "Did you know that...",
-      "editorial_potential": 0.85,
+      "editorial_potential": 0.92,
       "reasoning": "Why this moment was selected",
       "suggested_callouts": ["Term 1", "Statistic 2"]
     }}
@@ -390,6 +391,13 @@ def select_clips(
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
         selections_path.write_text(json.dumps(selections_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        # Archive to MinIO
+        try:
+            from clipforge_core.services.storage import default_storage
+            default_storage.save_file(selections_path, f"{project_id}/selections.json")
+        except Exception as e:
+            logger.error(f"[LLM Select] Failed to archive selections to MinIO: {e}")
 
         # Persist Clip records in DB
         db_session = get_sync_session()

@@ -302,6 +302,13 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
             "has_audio": probe_info["has_audio"],
         })
 
+        # Archive to MinIO
+        try:
+            from clipforge_core.services.storage import default_storage
+            default_storage.save_file(output_path, f"{project_id}/source.mp4")
+        except Exception as e:
+            logger.error(f"[Ingest] Failed to archive source.mp4 to storage: {e}")
+
         # Record to SourceAsset and Audit DB
         _record_source_asset(
             project_id=project_id,
