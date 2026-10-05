@@ -1168,7 +1168,6 @@ async def rerender_single_clip(
         os.replace(temp_muxed, out_video_path)
 
     # Build and write updated manifest
-    import json
     source_probe = probe_media(source_video)
     manifest = build_render_manifest(
         clip_id=str(clip.id),
