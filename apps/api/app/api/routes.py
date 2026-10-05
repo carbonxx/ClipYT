@@ -1354,8 +1354,25 @@ async def get_clip_voiceover_context(
 
     project = clip.project
     project_dir = _resolve_project_dir(str(project.id))
-    transcript_file = project_dir / "transcript.json"
-    analysis_file = project_dir / "analysis.json"
+    
+    asset_id = "primary"
+    selections_file = project_dir / "selections.json"
+    if selections_file.exists():
+        try:
+            sel_data = json.loads(selections_file.read_text(encoding="utf-8"))
+            for c in sel_data.get("clips", []):
+                if c.get("clip_id") == clip_id:
+                    asset_id = c.get("asset_id", "primary")
+                    break
+        except Exception:
+            pass
+            
+    if asset_id == "primary":
+        transcript_file = project_dir / "transcript.json"
+        analysis_file = project_dir / "analysis.json"
+    else:
+        transcript_file = project_dir / f"transcript_{asset_id}.json"
+        analysis_file = project_dir / f"analysis_{asset_id}.json"
 
     all_segments = []
     if transcript_file.exists():
