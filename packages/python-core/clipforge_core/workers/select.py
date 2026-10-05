@@ -146,8 +146,9 @@ CRITICAL MANDATORY RULES:
 4. COMPLETE THOUGHTS:
    Each segment MUST start at the beginning of a full sentence and end at the end of a complete sentence. DO NOT cut off mid-thought.
 
-5. AVOID CONVERSATIONAL FILLER & META-TALK (MANDATORY):
-   Strictly exclude end-of-clip conversational filler, interviewer meta-talk, or vague wrap-ups (e.g., "Anything more you want me to add?", "Does that make sense?"). The clip must end cleanly on a strong takeaway. Adjust the end timestamp of the final scene to trim these out.
+5. AVOID CONVERSATIONAL FILLER, INTERVIEWERS, & META-TALK (MANDATORY):
+   - Strictly exclude end-of-clip conversational filler or vague wrap-ups (e.g., "Anything more you want me to add?", "Does that make sense?").
+   - STRICTLY exclude interviewer questions and other people interrupting. The clip MUST ONLY feature the primary speaker delivering their point seamlessly. Adjust timestamps to trim out anyone else's voice.
 
 6. Hook Type must be one of: "question", "bold_statement", "surprising_stat", "story_loop", "controversial_thesis".
 7. Score `editorial_potential` realistically from 0.0 to 1.0 based on hook strength and virality.
@@ -430,6 +431,12 @@ def select_clips(
             for seg in segments:
                 start_s = float(seg.get("start_sec", 0.0))
                 end_s = float(seg.get("end_sec", start_s + 6.0))
+                
+                # Prevent any segment from crossing video boundaries
+                for m in source_mapping:
+                    if m["offset_start"] <= start_s <= m["offset_end"]:
+                        end_s = min(end_s, m["offset_end"])
+                        break
 
                 # Snap LLM timestamps to exact sentence boundaries with lead-in and release padding
                 start_s, end_s = snap_to_sentence_boundaries(
@@ -465,6 +472,15 @@ def select_clips(
                 deficit = float(min_length_sec) - total_duration
                 last_seg = processed_segments[-1]
                 target_end = last_seg["end_sec"] + deficit
+                
+                # Prevent crossing video boundaries
+                max_allowed_end = target_end
+                for m in source_mapping:
+                    if m["offset_start"] <= last_seg["start_sec"] <= m["offset_end"]:
+                        max_allowed_end = min(target_end, m["offset_end"])
+                        break
+                target_end = max_allowed_end
+
                 _, snapped_ext = snap_to_sentence_boundaries(
                     start_sec=last_seg["end_sec"],
                     end_sec=target_end,
@@ -474,6 +490,9 @@ def select_clips(
                     tail_release_pad=0.35,
                 )
                 last_seg["end_sec"] = max(round(target_end, 2), snapped_ext)
+                # Final safety clamp
+                last_seg["end_sec"] = min(last_seg["end_sec"], max_allowed_end)
+                
                 total_duration = sum(s["end_sec"] - s["start_sec"] for s in processed_segments)
                 overall_end = max(overall_end or 0.0, last_seg["end_sec"])
 
