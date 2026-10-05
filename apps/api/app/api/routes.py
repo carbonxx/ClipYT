@@ -161,12 +161,18 @@ async def create_project(
     risk_label = compute_source_risk(data.rights_basis, data.source_type, bool(data.rights_proof_url))
 
     # Create project
+    source_type = data.source_type
+    source_value = data.source_value
+    if data.sources:
+        source_type = "multi"
+        source_value = f"Multiple Sources ({len(data.sources)})"
+
     project = Project(
         id=uuid.uuid4(),
         owner_id=uuid.UUID(owner_id),
-        title=data.title or (f"Project {data.source_value[:30]}"),
-        source_type=data.source_type,
-        source_value=data.source_value,
+        title=data.title or (f"Project {source_value[:30]}"),
+        source_type=source_type,
+        source_value=source_value,
         rights_basis=data.rights_basis,
         rights_proof_url=data.rights_proof_url,
         rights_notes=data.rights_notes,
@@ -189,6 +195,26 @@ async def create_project(
         status="queued",
     )
     session.add(project)
+
+    # Create SourceAsset records
+    from clipforge_core.models import SourceAsset
+    if data.sources:
+        for idx, src in enumerate(data.sources):
+            asset = SourceAsset(
+                id=uuid.uuid4(),
+                project_id=project.id,
+                source_type=src.source_type,
+                source_url=src.source_value,
+            )
+            session.add(asset)
+    else:
+        asset = SourceAsset(
+            id=uuid.uuid4(),
+            project_id=project.id,
+            source_type=data.source_type,
+            source_url=data.source_value,
+        )
+        session.add(asset)
 
     # Record Rights Declared Audit Event (context2-upgrade.md Section 2.2 & 7.1)
     audit_event = ProjectAuditEvent(

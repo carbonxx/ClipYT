@@ -80,10 +80,15 @@ class CampaignBriefResponse(BaseModel):
 # ============================================
 # Projects
 # ============================================
-class ProjectCreate(BaseModel):
-    title: str | None = Field(default=None, max_length=255)
+class ProjectSource(BaseModel):
     source_type: str = Field(..., pattern="^(youtube_url|local_folder|upload)$")
     source_value: str = Field(..., min_length=1)
+
+class ProjectCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+    source_type: str | None = Field(default=None, pattern="^(youtube_url|local_folder|upload|multi)$")
+    source_value: str | None = Field(default=None)
+    sources: list[ProjectSource] | None = None
 
     # Mandatory Rights Declaration (Section 2.2)
     rights_basis: RightsBasisType = Field(

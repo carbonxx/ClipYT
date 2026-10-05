@@ -97,7 +97,7 @@ class Project(Base):
     audit_events = relationship("ProjectAuditEvent", back_populates="project", cascade="all, delete-orphan")
 
     __table_args__ = (
-        CheckConstraint("source_type IN ('youtube_url', 'local_folder', 'upload')", name="ck_projects_source_type"),
+        CheckConstraint("source_type IN ('youtube_url', 'local_folder', 'upload', 'multi')", name="ck_projects_source_type"),
         CheckConstraint("aspect_ratio IN ('9:16', '1:1', '16:9')", name="ck_projects_aspect_ratio"),
         CheckConstraint("crop_mode IN ('face_track', 'blur_background', 'center', 'stacked_speaker')", name="ck_projects_crop_mode"),
         CheckConstraint(

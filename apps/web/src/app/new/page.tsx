@@ -15,7 +15,7 @@ export default function NewProjectPage() {
 
   // Project Details
   const [title, setTitle] = useState("");
-  const [sourceType, setSourceType] = useState<"youtube_url" | "local_folder">("youtube_url");
+  const [sourceType, setSourceType] = useState<"youtube_url" | "multi_youtube_url" | "local_folder">("youtube_url");
   const [sourceValue, setSourceValue] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -191,7 +191,8 @@ export default function NewProjectPage() {
 
     try {
       let finalSourceValue = sourceValue.trim();
-      let finalSourceType: "youtube_url" | "local_folder" | "upload" = sourceType;
+      let finalSourceType: "youtube_url" | "local_folder" | "upload" | "multi" = sourceType as any;
+      let finalSources = undefined;
       
       if (sourceType === "local_folder" && selectedFile) {
         try {
@@ -203,12 +204,28 @@ export default function NewProjectPage() {
           setSubmitting(false);
           return;
         }
+      } else if (sourceType === "multi_youtube_url") {
+        const urls = sourceValue
+          .split("\n")
+          .map(u => u.trim())
+          .filter(u => u.length > 0);
+          
+        if (urls.length === 0) {
+          setError("Please provide at least one YouTube URL.");
+          setSubmitting(false);
+          return;
+        }
+        
+        finalSourceType = "multi";
+        finalSourceValue = "multi";
+        finalSources = urls.map(u => ({ source_type: "youtube_url", source_url: u }));
       }
 
       const input: CreateProjectInput = {
         title: title.trim() || undefined,
         source_type: finalSourceType,
         source_value: finalSourceValue,
+        sources: finalSources,
         rights_basis: rightsBasis,
         rights_proof_url: rightsProofUrl.trim() || undefined,
         rights_notes: rightsNotes.trim() || undefined,
@@ -408,7 +425,18 @@ export default function NewProjectPage() {
                     : "border-border bg-card text-cf-muted hover:border-border/80"
                 }`}
               >
-                YouTube URL
+                Single URL
+              </button>
+              <button
+                type="button"
+                onClick={() => setSourceType("multi_youtube_url")}
+                className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                  sourceType === "multi_youtube_url"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-cf-muted hover:border-border/80"
+                }`}
+              >
+                Multi URLs
               </button>
               <button
                 type="button"
@@ -430,6 +458,14 @@ export default function NewProjectPage() {
                 onChange={(e) => setSourceValue(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=..."
                 className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-cf-muted/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+              />
+            ) : sourceType === "multi_youtube_url" ? (
+              <textarea
+                value={sourceValue}
+                onChange={(e) => setSourceValue(e.target.value)}
+                placeholder="Paste YouTube URLs here, one per line..."
+                rows={4}
+                className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-cf-muted/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all resize-none"
               />
             ) : (
               <div className="space-y-2">

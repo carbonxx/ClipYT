@@ -65,13 +65,17 @@ def _record_source_asset(
     source_url: str | None,
     storage_path: str,
     probe_info: Dict[str, Any],
+    asset_id: str | None = None,
 ) -> None:
     """Persist technical probe metadata into the SourceAsset & Audit tables."""
     session = get_sync_session()
     try:
         pid = uuid.UUID(project_id)
         # Check if asset already exists
-        existing = session.query(SourceAsset).filter(SourceAsset.project_id == pid).first()
+        if asset_id:
+            existing = session.query(SourceAsset).filter(SourceAsset.id == uuid.UUID(asset_id)).first()
+        else:
+            existing = session.query(SourceAsset).filter(SourceAsset.project_id == pid).first()
         if existing:
             asset = existing
             asset.source_type = source_type
@@ -200,7 +204,7 @@ def _download_youtube(url: str, output_path: Path, project_id: str) -> dict:
             raise ValueError(f"Download failed: {e}")
 
 
-def _ingest_local_folder(folder_path: str, project_dir: Path) -> dict:
+def _ingest_local_folder(folder_path: str, project_dir: Path, output_name: str = "source.mp4") -> dict:
     """Ingest video file from local path."""
     source_dir = Path(folder_path)
 
@@ -209,7 +213,7 @@ def _ingest_local_folder(folder_path: str, project_dir: Path) -> dict:
 
     if source_dir.is_file():
         if source_dir.suffix.lower() in VIDEO_EXTENSIONS:
-            dest = project_dir / "source.mp4"
+            dest = project_dir / output_name
             shutil.copy2(str(source_dir), str(dest))
             return {
                 "title": source_dir.stem,
@@ -225,7 +229,7 @@ def _ingest_local_folder(folder_path: str, project_dir: Path) -> dict:
         raise ValueError(f"No supported video files found in {folder_path}")
 
     source_file = video_files[0]
-    dest = project_dir / "source.mp4"
+    dest = project_dir / output_name
     shutil.copy2(str(source_file), str(dest))
 
     return {
@@ -244,7 +248,7 @@ def _ingest_local_folder(folder_path: str, project_dir: Path) -> dict:
     max_retries=2,
     default_retry_delay=10,
 )
-def download_source(self, project_id: str, source_type: str, source_value: str) -> dict:
+def download_source(self, project_id: str, source_type: str, source_value: str, asset_id: str | None = None) -> dict:
     """
     Ingest and probe source video for a project.
     Queue: ingest (aliases: download)
@@ -263,7 +267,8 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
     _update_project_status(project_id, "downloading")
 
     project_dir = _get_project_dir(project_id)
-    output_path = project_dir / "source.mp4"
+    output_name = f"source_{asset_id}.mp4" if asset_id else "source.mp4"
+    output_path = project_dir / output_name
 
     try:
         if output_path.exists() and output_path.stat().st_size > 1024 * 1024:
@@ -278,7 +283,7 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
             metadata = _download_youtube(source_value, output_path, project_id)
             source_url = source_value
         elif source_type in ("local_folder", "upload"):
-            metadata = _ingest_local_folder(source_value, project_dir)
+            metadata = _ingest_local_folder(source_value, project_dir, output_name)
             source_url = None
         else:
             raise ValueError(f"Unknown source_type: {source_type}")
@@ -288,7 +293,7 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
             possible = list(project_dir.glob("source.*"))
             if possible:
                 actual = possible[0]
-                if actual.name != "source.mp4":
+                if actual.name != output_name:
                     actual.rename(output_path)
             else:
                 raise FileNotFoundError(f"Source file missing in {project_dir}")
@@ -305,9 +310,9 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
         # Archive to MinIO
         try:
             from clipforge_core.services.storage import default_storage
-            default_storage.save_file(output_path, f"{project_id}/source.mp4")
+            default_storage.save_file(output_path, f"{project_id}/{output_name}")
         except Exception as e:
-            logger.error(f"[Ingest] Failed to archive source.mp4 to storage: {e}")
+            logger.error(f"[Ingest] Failed to archive {output_name} to storage: {e}")
 
         # Record to SourceAsset and Audit DB
         _record_source_asset(
@@ -316,6 +321,7 @@ def download_source(self, project_id: str, source_type: str, source_value: str) 
             source_url=source_url,
             storage_path=str(output_path),
             probe_info=probe_info,
+            asset_id=asset_id,
         )
 
         result = {

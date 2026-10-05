@@ -51,7 +51,7 @@ def _update_project_status(project_id: str, status: str) -> None:
     max_retries=2,
     default_retry_delay=15,
 )
-def run_analysis(self, project_id: str, source_path: str) -> Dict[str, Any]:
+def run_analysis(self, project_id: str, source_path: str, asset_id: str | None = None) -> Dict[str, Any]:
     """
     Unified analysis pipeline stage:
       1. Whisper transcription
@@ -83,26 +83,28 @@ def run_analysis(self, project_id: str, source_path: str) -> Dict[str, Any]:
 
     try:
         # Step 0: Check if full analysis.json already exists and is valid
-        analysis_file = project_dir / "analysis.json"
+        analysis_name = f"analysis_{asset_id}.json" if asset_id else "analysis.json"
+        analysis_file = project_dir / analysis_name
         if analysis_file.exists():
             try:
                 cached_analysis = json.loads(analysis_file.read_text(encoding="utf-8"))
                 if cached_analysis.get("transcript") and "scenes" in cached_analysis:
-                    logger.info(f"[Analysis] Reusing fully completed analysis.json for project {project_id}")
+                    logger.info(f"[Analysis] Reusing fully completed {analysis_name} for project {project_id}")
                     update_job_progress(project_id, stage="analysis", status="success", percent=100.0, detail="Reused cached analysis.", force_write=True)
                     return cached_analysis
             except Exception as e:
-                logger.warning(f"[Analysis] Cached analysis.json could not be parsed: {e}")
+                logger.warning(f"[Analysis] Cached {analysis_name} could not be parsed: {e}")
 
         # Step 1: Faster-Whisper Transcription (or load existing cached transcript)
-        transcript_file = project_dir / "transcript.json"
+        transcript_name = f"transcript_{asset_id}.json" if asset_id else "transcript.json"
+        transcript_file = project_dir / transcript_name
         if transcript_file.exists():
-            logger.info(f"[Analysis] Found existing transcript.json for project {project_id}, reusing cached transcript")
+            logger.info(f"[Analysis] Found existing {transcript_name} for project {project_id}, reusing cached transcript")
             transcript = json.loads(transcript_file.read_text(encoding="utf-8"))
             update_job_progress(project_id, stage="analysis", percent=60.0, detail=f"Reused cached transcript ({len(transcript.get('segments', []))} segments).", force_write=True)
         else:
             logger.info(f"[Analysis] Transcribing audio for project {project_id}")
-            transcript = transcribe_audio(str(video_file), str(project_dir), project_id=project_id)
+            transcript = transcribe_audio(str(video_file), str(project_dir), project_id=project_id, output_name=transcript_name)
 
         # Step 2: Scene Detection with graceful fallback
         update_job_progress(project_id, stage="analysis", percent=62.0, detail="Detecting scene cuts & visual boundaries...", force_write=True)
@@ -189,7 +191,7 @@ def run_analysis(self, project_id: str, source_path: str) -> Dict[str, Any]:
         }
 
         # Save consolidated analysis.json
-        analysis_path = project_dir / "analysis.json"
+        analysis_path = project_dir / analysis_name
         analysis_path.write_text(json.dumps(analysis_result, indent=2, ensure_ascii=False), encoding="utf-8")
 
         # Save audit event in DB

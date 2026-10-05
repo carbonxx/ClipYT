@@ -70,14 +70,8 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
     project_dir = Path(settings.MEDIA_DIR) / project_id
     source_video = project_dir / "source.mp4"
     selections_file = project_dir / "selections.json"
-    analysis_file = project_dir / "analysis.json"
-
-    if not source_video.exists():
-        error_msg = f"Source video not found: {source_video}"
-        update_job_progress(project_id, stage="render", status="failed", error_message=error_msg, force_write=True)
-        _update_project_status(project_id, "failed")
-        raise FileNotFoundError(error_msg)
-
+    analysis_files = list(project_dir.glob("analysis*.json"))
+    
     if not selections_file.exists():
         error_msg = f"Selections file not found: {selections_file}"
         update_job_progress(project_id, stage="render", status="failed", error_message=error_msg, force_write=True)
@@ -87,13 +81,20 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
     # Load selections and analysis
     selections = json.loads(selections_file.read_text(encoding="utf-8"))
     candidate_clips = selections.get("clips", [])
-
-    transcript_segments = []
-    focal_timeline = []
-    if analysis_file.exists():
-        analysis_data = json.loads(analysis_file.read_text(encoding="utf-8"))
-        transcript_segments = analysis_data.get("transcript", {}).get("segments", [])
-        focal_timeline = analysis_data.get("face_tracking", {}).get("timeline", [])
+    def get_asset_id(p: Path) -> str:
+        return p.stem.split("_", 1)[1] if "_" in p.stem else "primary"
+        
+    asset_data = {}
+    for af in analysis_files:
+        aid = get_asset_id(af)
+        adata = json.loads(af.read_text(encoding="utf-8"))
+        asset_data[aid] = {
+            "transcript": adata.get("transcript", {}).get("segments", []),
+            "focal": adata.get("face_tracking", {}).get("timeline", [])
+        }
+    
+    if not asset_data:
+        asset_data["primary"] = {"transcript": [], "focal": []}
 
     # Fetch Project & Source Asset from DB
     session = get_sync_session()
@@ -182,13 +183,16 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
             total_duration = 0.0
 
             # Determine overall clip focal points across segments
-            clip_timeline = [
-                f for f in focal_timeline
-                if any(seg.get("start_sec", start_s) <= f.get("time_sec", 0.0) <= seg.get("end_sec", end_s) for seg in segments)
-            ]
-            clip_focal_points = [
-                f["focal_x"] for f in clip_timeline
-            ]
+            clip_focal_points = []
+            for seg in segments:
+                s_aid = seg.get("asset_id", cand.get("asset_id", "primary"))
+                s_focal = asset_data.get(s_aid, asset_data.get("primary", {}))["focal"]
+                s_timeline = [
+                    f for f in s_focal
+                    if seg.get("start_sec", start_s) <= f.get("time_sec", 0.0) <= seg.get("end_sec", end_s)
+                ]
+                clip_focal_points.extend([f["focal_x"] for f in s_timeline])
+
             focal_x = (
                 sum(clip_focal_points) / len(clip_focal_points)
                 if clip_focal_points
@@ -196,12 +200,24 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
             )
 
             for seg_idx, seg in enumerate(segments):
+                seg_asset_id = seg.get("asset_id", cand.get("asset_id", "primary"))
+                seg_source_name = f"source_{seg_asset_id}.mp4" if seg_asset_id != "primary" else "source.mp4"
+                seg_source_video = project_dir / seg_source_name
+                
+                if not seg_source_video.exists():
+                    logger.warning(f"Missing source video for asset {seg_asset_id}: {seg_source_video}. Falling back to primary source.mp4")
+                    seg_source_video = project_dir / "source.mp4"
+                    
+                seg_adata = asset_data.get(seg_asset_id, asset_data.get("primary", {}))
+                seg_transcript_segments = seg_adata["transcript"]
+                seg_focal_timeline = seg_adata["focal"]
+
                 seg_start_s = seg.get("start_sec", start_s)
                 seg_end_s = seg.get("end_sec", end_s)
 
                 # Determine focal point for this segment's time range
                 seg_timeline = [
-                    f for f in focal_timeline
+                    f for f in seg_focal_timeline
                     if seg_start_s <= f.get("time_sec", 0.0) <= seg_end_s
                 ]
                 seg_focal_points = [
@@ -227,7 +243,7 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
                     )
 
                 render_clip(
-                    source_path=source_video,
+                    source_path=seg_source_video,
                     output_path=seg_out_path,
                     start_sec=seg_start_s,
                     end_sec=seg_end_s,
@@ -235,7 +251,7 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
                     focal_x=seg_focal_x,
                     focal_timeline=seg_timeline if crop_mode == "stacked_speaker" else None,
                     caption_style=caption_style,
-                    transcript_segments=transcript_segments,
+                    transcript_segments=seg_transcript_segments,
                     output_thumbnail_path=seg_thumb_path if seg_idx == 0 else None,
                     progress_callback=seg_progress,
                 )

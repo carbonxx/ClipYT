@@ -219,23 +219,68 @@ def select_clips(
     _update_project_status(project_id, "selecting")
 
     project_dir = Path(settings.MEDIA_DIR) / project_id
-    transcript_path = project_dir / "transcript.json"
-    analysis_path = project_dir / "analysis.json"
+    analysis_files = list(project_dir.glob("analysis*.json"))
+    transcript_files = list(project_dir.glob("transcript*.json"))
 
-    if not transcript_path.exists() and not analysis_path.exists():
-        error_msg = f"Transcript missing for project {project_id}"
+    if not analysis_files and not transcript_files:
+        error_msg = f"Transcripts missing for project {project_id}"
         update_job_progress(project_id, stage="select", status="failed", error_message=error_msg, force_write=True)
         _update_project_status(project_id, "failed")
         raise FileNotFoundError(error_msg)
 
-    # Load transcript & scenes
-    if analysis_path.exists():
-        analysis_data = json.loads(analysis_path.read_text(encoding="utf-8"))
-        transcript = analysis_data.get("transcript", {})
-        scenes = analysis_data.get("scenes", [])
-    else:
-        transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
-        scenes = []
+    # Load and merge multiple transcripts/scenes into a single mega-timeline
+    merged_transcript = {"segments": [], "duration_sec": 0.0, "language": "unknown"}
+    merged_scenes = []
+    source_mapping = []
+
+    current_offset = 0.0
+
+    def get_asset_id_from_path(p: Path) -> str:
+        name = p.stem
+        if "_" in name:
+            return name.split("_", 1)[1]
+        return "primary"
+
+    files_to_process = analysis_files if analysis_files else transcript_files
+    for f in sorted(files_to_process):
+        asset_id = get_asset_id_from_path(f)
+        data = json.loads(f.read_text(encoding="utf-8"))
+        
+        if f.name.startswith("analysis"):
+            ts_data = data.get("transcript", {})
+            sc_data = data.get("scenes", [])
+        else:
+            ts_data = data
+            sc_data = []
+
+        dur = ts_data.get("duration_sec", 0.0)
+        source_mapping.append({
+            "asset_id": asset_id,
+            "offset_start": current_offset,
+            "offset_end": current_offset + dur,
+        })
+        
+        merged_transcript["language"] = ts_data.get("language", merged_transcript["language"])
+
+        for seg in ts_data.get("segments", []):
+            new_seg = seg.copy()
+            new_seg["start"] = new_seg.get("start", 0.0) + current_offset
+            new_seg["end"] = new_seg.get("end", 0.0) + current_offset
+            new_seg["asset_id"] = asset_id
+            merged_transcript["segments"].append(new_seg)
+
+        for scene in sc_data:
+            new_scene = scene.copy()
+            new_scene["start_sec"] = new_scene.get("start_sec", 0.0) + current_offset
+            new_scene["end_sec"] = new_scene.get("end_sec", 0.0) + current_offset
+            new_scene["asset_id"] = asset_id
+            merged_scenes.append(new_scene)
+
+        current_offset += dur
+
+    merged_transcript["duration_sec"] = current_offset
+    transcript = merged_transcript
+    scenes = merged_scenes
 
     # Fetch Project & Brief from DB
     session = get_sync_session()
@@ -484,6 +529,31 @@ def select_clips(
 
         # Snap to scene cut boundaries and deduplicate
         final_clips = deduplicate_and_rank_candidates(enriched_candidates, scenes=scenes)
+
+        # Unmap timestamps back to their native asset_ids
+        def unmap_ts(ts: float) -> tuple[str, float]:
+            for m in source_mapping:
+                if m["offset_start"] <= ts <= m["offset_end"]:
+                    return m["asset_id"], round(ts - m["offset_start"], 2)
+            if source_mapping:
+                m = source_mapping[-1]
+                return m["asset_id"], round(ts - m["offset_start"], 2)
+            return "primary", round(ts, 2)
+
+        for clip in final_clips:
+            # Map top-level timestamps (using the first segment's asset_id for the clip's primary reference)
+            primary_asset, mapped_start = unmap_ts(clip["start_sec"])
+            _, mapped_end = unmap_ts(clip["end_sec"])
+            clip["start_sec"] = mapped_start
+            clip["end_sec"] = mapped_end
+            clip["asset_id"] = primary_asset
+            
+            for seg in clip.get("segments", []):
+                seg_asset, s_mapped = unmap_ts(seg["start_sec"])
+                _, e_mapped = unmap_ts(seg["end_sec"])
+                seg["start_sec"] = s_mapped
+                seg["end_sec"] = e_mapped
+                seg["asset_id"] = seg_asset
 
         # Limit to requested clip count
         final_clips = final_clips[:clip_count]

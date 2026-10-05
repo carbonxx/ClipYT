@@ -84,13 +84,14 @@ def _update_project_status(project_id: str, status: str) -> None:
         session.close()
 
 
-def transcribe_audio(source_path: str, output_dir: str, project_id: str | None = None) -> dict:
+def transcribe_audio(source_path: str, output_dir: str, project_id: str | None = None, output_name: str = "transcript.json") -> dict:
     """
     Transcribe a video/audio file using faster-whisper.
 
     Args:
         source_path: Path to the source video file
-        output_dir: Directory to write transcript.json
+        output_dir: Directory to write transcript
+        output_name: Filename to write transcript to
 
     Returns:
         dict with:
@@ -193,7 +194,7 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
     }
 
     # Write transcript to disk
-    output_path = Path(output_dir) / "transcript.json"
+    output_path = Path(output_dir) / output_name
     output_path.write_text(json.dumps(transcript, indent=2, ensure_ascii=False), encoding="utf-8")
 
     logger.info(
