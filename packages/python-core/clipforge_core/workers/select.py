@@ -605,23 +605,6 @@ def select_clips(
         # Limit to requested clip count
         final_clips = final_clips[:clip_count]
 
-        # Save selections.json to disk
-        selections_path = project_dir / "selections.json"
-        selections_payload = {
-            "project_id": project_id,
-            "clips": final_clips,
-            "total_selected": len(final_clips),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-        }
-        selections_path.write_text(json.dumps(selections_payload, indent=2, ensure_ascii=False), encoding="utf-8")
-
-        # Archive to MinIO
-        try:
-            from clipforge_core.services.storage import default_storage
-            default_storage.save_file(selections_path, f"{project_id}/selections.json")
-        except Exception as e:
-            logger.error(f"[LLM Select] Failed to archive selections to MinIO: {e}")
-
         # Persist Clip records in DB
         db_session = get_sync_session()
         try:
@@ -672,6 +655,23 @@ def select_clips(
             db_session.rollback()
         finally:
             db_session.close()
+
+        # Save selections.json to disk (Now contains clip_id)
+        selections_path = project_dir / "selections.json"
+        selections_payload = {
+            "project_id": project_id,
+            "clips": final_clips,
+            "total_selected": len(final_clips),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        selections_path.write_text(json.dumps(selections_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        # Archive to MinIO
+        try:
+            from clipforge_core.services.storage import default_storage
+            default_storage.save_file(selections_path, f"{project_id}/selections.json")
+        except Exception as e:
+            logger.error(f"[LLM Select] Failed to archive selections to MinIO: {e}")
 
         update_job_progress(project_id, stage="select", status="success", percent=100.0, detail="Selection complete.", force_write=True)
         logger.info(f"[LLM Select] Selected {len(final_clips)} clips for project {project_id}")
