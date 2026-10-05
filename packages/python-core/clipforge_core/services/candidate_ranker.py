@@ -196,6 +196,20 @@ def snap_to_sentence_boundaries(
             start_idx = idx
             break
 
+    # If ensure_complete, walk backward if the starting segment is mid-sentence
+    if ensure_complete and start_idx is not None:
+        current_idx = start_idx
+        while current_idx > 0:
+            prev_seg_text = transcript_segments[current_idx - 1].get("text", "")
+            # If the previous segment ends with a complete sentence boundary, we are at the start of a new one
+            if is_sentence_complete(prev_seg_text):
+                break
+            current_idx -= 1
+            snapped_start = transcript_segments[current_idx].get("start", snapped_start)
+            start_idx = current_idx
+            if (snapped_end - snapped_start) > 65.0:
+                break
+
     # Apply lead-in padding without bleeding into previous speech
     if start_idx is not None:
         prev_end = transcript_segments[start_idx - 1].get("end", 0.0) if start_idx > 0 else 0.0

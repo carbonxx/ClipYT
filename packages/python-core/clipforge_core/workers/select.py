@@ -144,23 +144,25 @@ CRITICAL MANDATORY RULES:
    The transcript may contain multiple source videos separated by "--- SOURCE VIDEO ---". 
    - You MUST extract at least one highly engaging clip from EACH source video if multiple exist.
    - Do NOT stitch scenes across different source videos unless they are perfectly related. A single clip should generally be self-contained within the same source video.
+   - MANDATORY: At least ONE of the {clip_count} clips MUST include the speaker's introduction from the very beginning of the video (e.g. "Hi, I am [Name]..."). Do NOT skip the introduction.
 
-2. MULTI-SCENE NARRATIVE STITCHING (MANDATORY):
-   Every clip MUST be composed of 1 to 3 distinct scenes (`segments`) stitched together to create a dynamic, viral story that does NOT lose context:
-   - Scene 1 (The Hook): 5 to 10 seconds. The most attention-grabbing quote, controversy, question, or emotional reaction.
-   - Scene 2 (The Context & Payoff): 15 to 30 seconds. The backstory or dialogue that explains the context and reaches the conclusion/punchline.
-   (Optional Scene 3: 8 to 15 seconds if a 3rd scene provides the solution or resolution).
-   The scenes do NOT have to be contiguous; stitching non-contiguous moments creates the highest retention viral clips!
+2. NARRATIVE CONTINUITY & CONTEXT (MANDATORY):
+   Every clip MUST provide complete context so the audience understands the full story. Videos must NOT be vague.
+   - Avoid stitching together random, disconnected sentences.
+   - Prefer continuous dialogue blocks. If you must stitch non-contiguous scenes, they MUST flow logically without sounding abrupt or missing backstory.
+   - STRICTLY AVOID repeating the same sentences within a clip. Ensure segments do not overlap or re-tread the same information.
+   - Scene 1 (The Hook): 5 to 10 seconds. The intro or the most attention-grabbing quote.
+   - Scene 2 (The Context & Payoff): 15 to 30 seconds. The backstory or dialogue that logically continues the hook.
 
-2. CLIP DURATION CONSTRAINT:
+3. CLIP DURATION CONSTRAINT:
    Combined duration across all scenes in each clip MUST be between {min_length_sec} and {max_length_sec} seconds (typically 25 to 50 seconds total).
-   NEVER output a single 2 to 5 second fragment. Every clip must provide complete context so the audience understands the full story from beginning to end.
+   NEVER output a single 2 to 5 second fragment. Every clip must provide complete context from beginning to end.
 
-3. HINGLISH & AUDIO QUALITY:
+4. HINGLISH & AUDIO QUALITY:
    The video may be in Hinglish (mixed Hindi and English). Evaluate content quality across both languages. STRICTLY AVOID selecting any segments where the speaker stutters, gets stuck, repeats words, or where there is dead air.
 
-4. COMPLETE THOUGHTS:
-   Each segment MUST start at the beginning of a full sentence and end at the end of a complete sentence. DO NOT cut off mid-thought.
+5. COMPLETE THOUGHTS:
+   Each segment MUST start at the beginning of a full sentence and end at the end of a complete sentence. DO NOT cut off mid-thought or start abruptly.
 
 5. AVOID CONVERSATIONAL FILLER, INTERVIEWERS, & META-TALK (MANDATORY):
    - Strictly exclude end-of-clip conversational filler or vague wrap-ups (e.g., "Anything more you want me to add?", "Does that make sense?").
