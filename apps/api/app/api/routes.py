@@ -753,8 +753,11 @@ async def reclip_project(
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Verify transcript exists on disk
-    transcript_path = Path(app_settings.MEDIA_DIR) / project_id / "transcript.json"
-    if not transcript_path.exists():
+    project_dir = Path(app_settings.MEDIA_DIR) / project_id
+    analysis_files = list(project_dir.glob("analysis*.json"))
+    transcript_files = list(project_dir.glob("transcript*.json"))
+    
+    if not analysis_files and not transcript_files:
         raise HTTPException(
             status_code=400, detail="No transcript found for this project. The video must be fully processed first."
         )
