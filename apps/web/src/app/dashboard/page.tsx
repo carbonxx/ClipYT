@@ -130,55 +130,66 @@ export default function DashboardPage() {
           )}
 
           {!loading && projects.length > 0 && (
-            <div className="grid gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
                 <Link
                   key={project.id}
                   href={`/project/${project.id}`}
-                  className="group rounded-xl bg-card border border-border/50 p-5 transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                  className="group flex flex-col rounded-xl bg-card border border-border/50 overflow-hidden transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {(project as any).preview_url ? (
-                          <img 
-                            src={(project as any).preview_url.startsWith("media") ? `http://localhost:8000/${(project as any).preview_url.replace(/\\/g, "/")}` : (project as any).preview_url.replace(/\\/g, "/")} 
-                            alt="Project thumbnail" 
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : project.source_type === "youtube_url" ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5 text-primary">
+                  <div className="relative aspect-video bg-surface overflow-hidden border-b border-border/50">
+                    {(project as any).preview_url ? (
+                      <img 
+                        src={(project as any).preview_url.startsWith("media") ? `http://localhost:8000/${(project as any).preview_url.replace(/\\/g, "/")}` : (project as any).preview_url.replace(/\\/g, "/")} 
+                        alt="Project thumbnail" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-primary/5">
+                        {project.source_type === "youtube_url" ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10 text-primary/40">
                             <circle cx="12" cy="12" r="10" />
                             <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
                           </svg>
                         ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5 text-primary">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10 text-primary/40">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                           </svg>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                          {project.source_value.length > 60
-                            ? project.source_value.slice(0, 60) + "..."
-                            : project.source_value}
-                        </p>
-                        <p className="text-xs text-cf-muted mt-0.5">
-                          {project.clip_count} clips · {timeAgo(project.created_at)}
-                        </p>
-                        {project.status === "failed" && (project as any).error_message && (
-                          <p className="text-xs text-cf-error mt-1 flex items-center gap-1.5 line-clamp-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5 flex-shrink-0">
-                              <circle cx="12" cy="12" r="10" />
-                              <line x1="12" y1="8" x2="12" y2="12" />
-                              <line x1="12" y1="16" x2="12.01" y2="16" />
-                            </svg>
-                            {(project as any).error_message}
-                          </p>
-                        )}
-                      </div>
+                    )}
+                    <div className="absolute top-3 right-3 shadow-sm">
+                      <StatusBadge status={project.status} />
                     </div>
-                    <StatusBadge status={project.status} />
+                  </div>
+                  <div className="p-5 flex flex-col flex-1">
+                    <p className="text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors">
+                      {project.title || project.source_value}
+                    </p>
+                    <p className="text-xs text-cf-muted truncate mt-1" title={project.source_value}>
+                      {project.source_value}
+                    </p>
+                    
+                    <div className="mt-auto pt-5 flex items-center justify-between text-xs text-cf-muted">
+                      <span className="flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5 opacity-70"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        {timeAgo(project.created_at)}
+                      </span>
+                      <span className="font-medium bg-surface px-2 py-1 rounded-md border border-border/50">
+                        {project.clip_count} clips
+                      </span>
+                    </div>
+
+                    {project.status === "failed" && (project as any).error_message && (
+                      <p className="text-xs text-cf-error mt-3 flex items-start gap-1.5 line-clamp-2 bg-cf-error/5 p-2 rounded border border-cf-error/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5 flex-shrink-0 mt-0.5">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <span className="line-clamp-2">{(project as any).error_message}</span>
+                      </p>
+                    )}
                   </div>
                 </Link>
               ))}

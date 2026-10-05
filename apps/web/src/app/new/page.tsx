@@ -362,7 +362,12 @@ export default function NewProjectPage() {
 
           {/* Editorial Template Selector */}
           <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
-            <h2 className="text-sm font-semibold">2. Editorial Transformation Template</h2>
+            <div>
+              <h2 className="text-sm font-semibold">2. Editorial Transformation Template</h2>
+              <p className="text-xs text-cf-muted mt-1 leading-relaxed">
+                The engine now intelligently cuts, selects, and stitches together multiple scenes to craft the best possible narrative, replacing the previous single-clip extraction. Choose a template below to guide the scene selection and stitching process.
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
               {[

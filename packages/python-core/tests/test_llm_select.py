@@ -35,7 +35,7 @@ def test_build_selection_prompt():
     assert "TRANSCRIPT WITH TIMESTAMPS" in prompt
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_llm_client_mock_json_completion():
     mock_response = {
         "clips": [

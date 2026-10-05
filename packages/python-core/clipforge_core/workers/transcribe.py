@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from faster_whisper import WhisperModel
+import mlx_whisper
 
 from clipforge_core.celery_app import celery_app
 from clipforge_core.config import settings
@@ -28,37 +28,6 @@ from clipforge_core.database import get_sync_session
 from clipforge_core.models import Job, Project
 
 logger = logging.getLogger(__name__)
-
-# Module-level model cache — loaded once per worker process
-_whisper_model: WhisperModel | None = None
-
-
-def _get_whisper_model() -> WhisperModel:
-    """
-    Get or initialize the Whisper model.
-
-    Cached at module level so it's loaded once per Celery worker process,
-    not once per task. Model loading is the most expensive part (~5-15s).
-
-    Config from settings:
-        WHISPER_MODEL_SIZE: 'tiny', 'base', 'small', 'medium', 'large-v3'
-        WHISPER_DEVICE: 'cpu' or 'cuda'
-        WHISPER_COMPUTE_TYPE: 'int8', 'float16', 'float32'
-    """
-    global _whisper_model
-    if _whisper_model is None:
-        logger.info(
-            f"Loading Whisper model: {settings.WHISPER_MODEL_SIZE} "
-            f"(device={settings.WHISPER_DEVICE}, compute={settings.WHISPER_COMPUTE_TYPE})"
-        )
-        _whisper_model = WhisperModel(
-            settings.WHISPER_MODEL_SIZE,
-            device=settings.WHISPER_DEVICE,
-            compute_type=settings.WHISPER_COMPUTE_TYPE,
-        )
-        logger.info("Whisper model loaded successfully")
-    return _whisper_model
-
 
 def _update_job_status(
     project_id: str,
@@ -130,26 +99,19 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
             - language: detected language
             - duration_sec: total audio duration
     """
-    model = _get_whisper_model()
     source = Path(source_path)
 
     if not source.exists():
         raise FileNotFoundError(f"Source file not found: {source_path}")
 
-    logger.info(f"Transcribing: {source.name}")
+    model_name = f"mlx-community/whisper-{settings.WHISPER_MODEL_SIZE}-mlx"
+    # Special cases for MLX repo naming
+    if settings.WHISPER_MODEL_SIZE == "large-v3":
+        model_name = "mlx-community/whisper-large-v3-mlx"
+    elif settings.WHISPER_MODEL_SIZE == "base":
+        model_name = "mlx-community/whisper-base-mlx"
 
-    # Run transcription
-    segments_iter, info = model.transcribe(
-        str(source),
-        beam_size=5,
-        word_timestamps=True,
-        vad_filter=True,  # Voice Activity Detection — skip silence
-        vad_parameters=dict(
-            min_silence_duration_ms=500,
-        ),
-    )
-
-    logger.info(f"Detected language: {info.language} (probability: {info.language_probability:.2f})")
+    logger.info(f"Transcribing: {source.name} using MLX ({model_name})")
 
     if project_id:
         try:
@@ -157,54 +119,49 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
             update_job_progress(
                 project_id=project_id,
                 stage="analysis",
-                percent=5.0,
-                detail="Transcribing audio with Whisper AI...",
+                percent=30.0,
+                detail=f"Transcribing via Apple Silicon MLX GPU ({model_name})...",
                 force_write=True,
             )
         except Exception:
             pass
 
+    # Run transcription (blocking, extremely fast on Mac GPU)
+    result = mlx_whisper.transcribe(
+        str(source),
+        path_or_hf_repo=model_name,
+        word_timestamps=True,
+        initial_prompt="This is a Hinglish video with mixed Hindi and English speech.",
+    )
+
+    language = result.get("language", "unknown")
+    logger.info(f"Detected language: {language}")
+
     # Process segments into structured format
     segments = []
     full_text_parts = []
-
-    for segment in segments_iter:
+    
+    for segment in result.get("segments", []):
         words = []
-        if segment.words:
-            for word in segment.words:
-                words.append(
-                    {
-                        "start": round(word.start, 3),
-                        "end": round(word.end, 3),
-                        "word": word.word.strip(),
-                        "probability": round(word.probability, 3),
-                    }
-                )
+        for word in segment.get("words", []):
+            words.append(
+                {
+                    "start": round(word["start"], 3),
+                    "end": round(word["end"], 3),
+                    "word": word["word"].strip(),
+                    "probability": round(word.get("probability", 1.0), 3),
+                }
+            )
 
         seg_data = {
-            "id": len(segments),
-            "start": round(segment.start, 3),
-            "end": round(segment.end, 3),
-            "text": segment.text.strip(),
+            "id": segment.get("id", len(segments)),
+            "start": round(segment["start"], 3),
+            "end": round(segment["end"], 3),
+            "text": segment["text"].strip(),
             "words": words,
         }
         segments.append(seg_data)
-        full_text_parts.append(segment.text.strip())
-
-        # Update progress continuously (smoothly throttled by progress.py to prevent DB spam)
-        if project_id and info.duration > 0:
-            whisper_pct = min(100.0, (segment.end / info.duration) * 100.0)
-            overall_pct = 5.0 + (whisper_pct / 100.0) * 55.0
-            try:
-                from clipforge_core.services.progress import update_job_progress
-                update_job_progress(
-                    project_id=project_id,
-                    stage="analysis",
-                    percent=float(round(overall_pct, 1)),
-                    detail=f"Transcribing audio: {round(float(segment.end), 1)}s / {round(float(info.duration), 1)}s ({int(whisper_pct)}%)"
-                )
-            except Exception:
-                pass
+        full_text_parts.append(segment["text"].strip())
 
     if project_id:
         try:
@@ -220,11 +177,16 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
             pass
 
     full_text = " ".join(full_text_parts)
+    
+    # Infer duration from the last segment since MLX doesn't return info object
+    duration_sec = 0.0
+    if segments:
+        duration_sec = segments[-1]["end"]
 
     transcript = {
-        "language": info.language,
-        "language_probability": round(info.language_probability, 3),
-        "duration_sec": round(info.duration, 3),
+        "language": language,
+        "language_probability": 1.0,
+        "duration_sec": duration_sec,
         "segment_count": len(segments),
         "segments": segments,
         "full_text": full_text,
@@ -235,7 +197,7 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
     output_path.write_text(json.dumps(transcript, indent=2, ensure_ascii=False), encoding="utf-8")
 
     logger.info(
-        f"Transcription complete: {len(segments)} segments, {len(full_text)} chars, {info.duration:.1f}s duration"
+        f"Transcription complete: {len(segments)} segments, {len(full_text)} chars, {duration_sec:.1f}s duration"
     )
 
     return transcript

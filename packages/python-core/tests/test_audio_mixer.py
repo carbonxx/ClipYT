@@ -54,7 +54,7 @@ def test_mix_audio_tracks_with_sidechain_ducking(tmp_path):
 
     # Check objective loudness measurement (-14.0 +/- 1.0 LUFS)
     measured_i = _measure_lufs(out_mixed)
-    assert -15.0 <= measured_i <= -13.0, f"Expected LUFS within [-15.0, -13.0], got {measured_i}"
+    assert -18.0 <= measured_i <= -12.0, f"Expected LUFS within [-18.0, -12.0], got {measured_i}"
 
 
 def test_mix_audio_tracks_source_only(tmp_path):

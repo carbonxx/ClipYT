@@ -177,10 +177,14 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
                 clip_id = str(uuid.uuid4())
                 clip_num = len(db_clips) + idx + 1
 
-            # Determine focal point for this clip's time range
+            segments = cand.get("segments") or [{"start_sec": start_s, "end_sec": end_s}]
+            temp_segment_files = []
+            total_duration = 0.0
+
+            # Determine overall clip focal points across segments
             clip_timeline = [
                 f for f in focal_timeline
-                if start_s <= f.get("time_sec", 0.0) <= end_s
+                if any(seg.get("start_sec", start_s) <= f.get("time_sec", 0.0) <= seg.get("end_sec", end_s) for seg in segments)
             ]
             clip_focal_points = [
                 f["focal_x"] for f in clip_timeline
@@ -191,33 +195,97 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
                 else 0.5
             )
 
+            for seg_idx, seg in enumerate(segments):
+                seg_start_s = seg.get("start_sec", start_s)
+                seg_end_s = seg.get("end_sec", end_s)
+
+                # Determine focal point for this segment's time range
+                seg_timeline = [
+                    f for f in focal_timeline
+                    if seg_start_s <= f.get("time_sec", 0.0) <= seg_end_s
+                ]
+                seg_focal_points = [
+                    f["focal_x"] for f in seg_timeline
+                ]
+                seg_focal_x = (
+                    sum(seg_focal_points) / len(seg_focal_points)
+                    if seg_focal_points
+                    else focal_x
+                )
+
+                seg_out_path = clips_output_dir / f"clip_{clip_num}_seg_{seg_idx}.mp4"
+                seg_thumb_path = clips_output_dir / f"clip_{clip_num}_seg_{seg_idx}_thumb.jpg"
+
+                def seg_progress(p: float, s_idx=seg_idx):
+                    p_frac = (s_idx + (p / 100.0)) / len(segments)
+                    overall_percent = base_percent + (p_frac * (100.0 / total_clips))
+                    update_job_progress(
+                        project_id=project_id,
+                        stage="render",
+                        percent=overall_percent,
+                        detail=f"Rendering clip {idx+1}/{total_clips} (Seg {s_idx+1}/{len(segments)}: {p:.0f}%)"
+                    )
+
+                render_clip(
+                    source_path=source_video,
+                    output_path=seg_out_path,
+                    start_sec=seg_start_s,
+                    end_sec=seg_end_s,
+                    crop_mode=crop_mode,
+                    focal_x=seg_focal_x,
+                    focal_timeline=seg_timeline if crop_mode == "stacked_speaker" else None,
+                    caption_style=caption_style,
+                    transcript_segments=transcript_segments,
+                    output_thumbnail_path=seg_thumb_path if seg_idx == 0 else None,
+                    progress_callback=seg_progress,
+                )
+                temp_segment_files.append(seg_out_path)
+                total_duration += (seg_end_s - seg_start_s)
+
             out_video_path = clips_output_dir / f"clip_{clip_num}.mp4"
             out_thumb_path = clips_output_dir / f"clip_{clip_num}_thumb.jpg"
 
-            # Define progress callback
-            def clip_progress(p: float):
-                overall_percent = base_percent + (p / total_clips)
-                update_job_progress(
-                    project_id=project_id,
-                    stage="render",
-                    percent=overall_percent,
-                    detail=f"Rendering clip {idx+1}/{total_clips} ({p:.0f}%)"
-                )
+            # Concatenate segments if more than 1
+            if len(temp_segment_files) > 1:
+                concat_list_path = clips_output_dir / f"clip_{clip_num}_concat.txt"
+                with open(concat_list_path, "w") as f:
+                    for tsf in temp_segment_files:
+                        f.write(f"file '{tsf.name}'\n")
+                
+                import subprocess
+                concat_cmd = [
+                    "ffmpeg", "-y", "-f", "concat", "-safe", "0",
+                    "-i", str(concat_list_path),
+                    "-c", "copy",
+                    str(out_video_path)
+                ]
+                subprocess.run(concat_cmd, check=True, capture_output=True)
+                
+                import shutil
+                seg_0_thumb = clips_output_dir / f"clip_{clip_num}_seg_0_thumb.jpg"
+                if seg_0_thumb.exists():
+                    shutil.copy(seg_0_thumb, out_thumb_path)
+                    seg_0_thumb.unlink(missing_ok=True)
+                
+                for tsf in temp_segment_files:
+                    tsf.unlink(missing_ok=True)
+                concat_list_path.unlink(missing_ok=True)
+            else:
+                import shutil
+                shutil.move(temp_segment_files[0], out_video_path)
+                seg_0_thumb = clips_output_dir / f"clip_{clip_num}_seg_0_thumb.jpg"
+                if seg_0_thumb.exists():
+                    shutil.move(seg_0_thumb, out_thumb_path)
 
-            # Execute rendering
-            render_res = render_clip(
-                source_path=source_video,
-                output_path=out_video_path,
-                start_sec=start_s,
-                end_sec=end_s,
-                crop_mode=crop_mode,
-                focal_x=focal_x,
-                focal_timeline=clip_timeline if crop_mode == "stacked_speaker" else None,
-                caption_style=caption_style,
-                transcript_segments=transcript_segments,
-                output_thumbnail_path=out_thumb_path,
-                progress_callback=clip_progress,
-            )
+            if not out_thumb_path.exists() and out_video_path.exists():
+                import subprocess
+                thumb_cmd = [
+                    "ffmpeg", "-y", "-ss", "0.5", "-i", str(out_video_path),
+                    "-vframes", "1", "-q:v", "2", str(out_thumb_path)
+                ]
+                subprocess.run(thumb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+            end_s = start_s + total_duration  # Set duration for effects
 
             # Apply project-wide default motion effects if selected
             if active_effects:
@@ -322,13 +390,14 @@ def render_project_clips(self, project_id: str) -> Dict[str, Any]:
             finally:
                 db_session.close()
 
+            out_probe = probe_media(out_video_path) if out_video_path.exists() else {}
             rendered_results.append({
                 "clip_id": clip_id,
                 "clip_number": clip_num,
                 "file_url": rel_file_url,
                 "thumbnail_url": rel_thumb_url,
-                "duration_sec": render_res["duration_sec"],
-                "file_size_mb": render_res["file_size_mb"],
+                "duration_sec": out_probe.get("duration_sec", total_duration),
+                "file_size_mb": out_probe.get("file_size_mb", 0.0),
                 "manifest_path": str(manifest_path),
             })
 

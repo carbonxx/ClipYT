@@ -72,7 +72,7 @@ print("-" * 40)
 code, data = api_get("/health")
 check("API /health returns 200", code == 200)
 check("API reports status=ok", data.get("status") == "ok")
-check("LLM gateway configured", "20128" in data.get("llm_gateway", ""))
+check("LLM gateway configured", "20128" in data.get("llm_gateway", "") or "11434" in data.get("llm_gateway", ""))
 
 # Ready endpoint
 code, data = api_get("/ready")
@@ -99,7 +99,7 @@ print("-" * 40)
 
 try:
     import psycopg2
-    conn = psycopg2.connect(host="127.0.0.1", port=5432, dbname="clipforge", user="postgres", password="password")
+    conn = psycopg2.connect(host="127.0.0.1", port=5433, dbname="clipforge", user="postgres", password="postgres")
     cur = conn.cursor()
     cur.execute("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")
     tables = [r[0] for r in cur.fetchall()]
@@ -155,7 +155,7 @@ print("-" * 40)
 clip_id = None
 project_id = None
 try:
-    conn = psycopg2.connect(host="127.0.0.1", port=5432, dbname="clipforge", user="postgres", password="password")
+    conn = psycopg2.connect(host="127.0.0.1", port=5433, dbname="clipforge", user="postgres", password="postgres")
     cur = conn.cursor()
     cur.execute("SELECT id, project_id FROM clips LIMIT 1")
     row = cur.fetchone()

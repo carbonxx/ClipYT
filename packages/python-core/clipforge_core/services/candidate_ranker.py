@@ -131,36 +131,127 @@ def snap_to_scene_boundaries(
     return round(snapped_start, 2), round(snapped_end, 2)
 
 
+DANGLING_CONNECTORS = {
+    # English
+    "and", "but", "so", "or", "because", "then", "which", "that", "with", "to", "if", "when", "like", "as", "how",
+    # Hindi / Hinglish
+    "aur", "lekin", "kyunki", "ki", "toh", "ya", "yaani", "matlab", "agar", "jab", "par", "bhi", "se"
+}
+
+META_TALK_PHRASES = [
+    "anything more you want me to add",
+    "anything else you want to add",
+    "anything else you want me to add",
+    "does that make sense",
+    "does that make any sense",
+    "do you know what i mean",
+    "you know what i mean",
+    "that's about it",
+    "that's all i have",
+    "did i answer your question",
+    "does that answer your question",
+    "any other questions",
+]
+
+
+def is_sentence_complete(text: str) -> bool:
+    """Checks whether text ends on a complete sentence boundary rather than a hanging connector."""
+    clean = text.strip()
+    if not clean or clean.endswith(("...", "…", ",", "–", "-", ";", ":")):
+        return False
+    words = clean.lower().rstrip(".,?!:;–-\"'").split()
+    if words and words[-1] in DANGLING_CONNECTORS:
+        return False
+    return clean.endswith((".", "?", "!", "।", "\"", "”"))
+
+
 def snap_to_sentence_boundaries(
     start_sec: float,
     end_sec: float,
     transcript_segments: List[Dict[str, Any]],
     tolerance_sec: float = 3.0,
+    ensure_complete: bool = True,
+    lead_in_pad: float = 0.15,
+    tail_release_pad: float = 0.35,
 ) -> tuple[float, float]:
     """
-    Snap candidate start and end times outwards to encompass the entire transcript segment
-    they fall into, ensuring words are never chopped in half.
+    Snap candidate start and end times outwards to encompass the entire spoken segment,
+    ensuring sentences never cut off on dangling connectors or mid-thought, and adding
+    natural acoustic release padding.
     """
+    if not transcript_segments:
+        return round(start_sec, 2), round(end_sec, 2)
+
     snapped_start = start_sec
     snapped_end = end_sec
-    
-    # If the LLM start timestamp falls anywhere inside a spoken segment, 
-    # pull the start time back to the beginning of that segment.
-    for seg in transcript_segments:
+    start_idx = None
+    end_idx = None
+
+    # Find starting segment
+    for idx, seg in enumerate(transcript_segments):
         s = seg.get("start", 0.0)
         e = seg.get("end", 0.0)
-        if s <= start_sec < e:
+        if s <= start_sec < e or (idx == 0 and start_sec < s):
             snapped_start = s
+            start_idx = idx
             break
-            
-    # If the LLM end timestamp falls anywhere inside a spoken segment,
-    # push the end time forward to the end of that segment.
-    for seg in reversed(transcript_segments):
+
+    # Apply lead-in padding without bleeding into previous speech
+    if start_idx is not None:
+        prev_end = transcript_segments[start_idx - 1].get("end", 0.0) if start_idx > 0 else 0.0
+        snapped_start = max(prev_end, snapped_start - lead_in_pad)
+
+    # Find ending segment
+    for idx in range(len(transcript_segments) - 1, -1, -1):
+        seg = transcript_segments[idx]
         s = seg.get("start", 0.0)
         e = seg.get("end", 0.0)
-        if s < end_sec <= e:
+        if s < end_sec <= e or (idx == len(transcript_segments) - 1 and end_sec > e):
             snapped_end = e
+            end_idx = idx
             break
+
+    # If ensure_complete, advance forward if the ending segment does not finish a complete sentence
+    if ensure_complete and end_idx is not None:
+        current_idx = end_idx
+        while current_idx < len(transcript_segments) - 1:
+            seg_text = transcript_segments[current_idx].get("text", "")
+            if is_sentence_complete(seg_text):
+                snapped_end = transcript_segments[current_idx].get("end", snapped_end)
+                end_idx = current_idx
+                break
+            current_idx += 1
+            snapped_end = transcript_segments[current_idx].get("end", snapped_end)
+            end_idx = current_idx
+            if (snapped_end - snapped_start) > 65.0:
+                break
+
+    # Strip conversational filler / meta-talk from the end
+    import re
+    if end_idx is not None:
+        while end_idx >= (start_idx or 0):
+            seg_text = transcript_segments[end_idx].get("text", "").strip().lower()
+            clean_text = re.sub(r'[^\w\s]', '', seg_text)
+            
+            # Check if this segment contains any meta-talk phrases
+            if any(phrase in clean_text for phrase in META_TALK_PHRASES):
+                logger.info(f"[CandidateRanker] Stripping meta-talk from clip end: '{seg_text}'")
+                end_idx -= 1
+                if end_idx >= 0:
+                    snapped_end = transcript_segments[end_idx].get("end", snapped_end)
+                else:
+                    break
+            else:
+                break
+
+    # Apply natural room-tone / vocal release padding so audio doesn't hit a digital scissor cut
+    if end_idx is not None:
+        next_start = (
+            transcript_segments[end_idx + 1].get("start", snapped_end + 1.0)
+            if end_idx < len(transcript_segments) - 1
+            else snapped_end + tail_release_pad
+        )
+        snapped_end = min(snapped_end + tail_release_pad, next_start - 0.05)
 
     return round(snapped_start, 2), round(snapped_end, 2)
 

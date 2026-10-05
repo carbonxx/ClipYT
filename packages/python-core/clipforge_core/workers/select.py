@@ -23,7 +23,8 @@ from clipforge_core.models import Clip, Job, Project, ProjectAuditEvent
 from clipforge_core.services.candidate_ranker import (
     clamp_to_boundary,
     deduplicate_and_rank_candidates,
-    snap_to_sentence_boundaries
+    snap_to_sentence_boundaries,
+    snap_to_scene_boundaries,
 )
 from clipforge_core.services.llm_client import LLMClientError, llm_client
 from clipforge_core.services.temporal_binner import compute_temporal_bins, format_bin_directives, validate_bin_membership
@@ -115,26 +116,49 @@ def _build_selection_prompt(
 
 ## TASK
 Select up to {clip_count} highlight candidates.
-- Target clip duration: nominally {min_length_sec} to {max_length_sec} seconds (the boundary-aware clamp engine will snap to valid boundaries). If a key exchange or routine naturally extends longer, provide the full natural scene range.
-- Clips should not overlap.
-- Hook Type must be one of: "question", "bold_statement", "surprising_stat", "story_loop", "controversial_thesis".
-- Score `editorial_potential` realistically from 0.0 to 1.0 based on hook strength and virality. DO NOT use the same score for all clips.
-- Keep reasoning brief (1 short sentence) and suggested_callouts concise.
-- Output JSON directly without any conversational preamble or thinking text.
+
+CRITICAL MANDATORY RULES:
+1. MULTI-SCENE NARRATIVE STITCHING (MANDATORY):
+   Every clip MUST be composed of 2 to 3 distinct scenes (`segments`) stitched together to create a dynamic, viral story that does NOT lose context:
+   - Scene 1 (The Hook): 5 to 10 seconds. The most attention-grabbing quote, controversy, question, or emotional reaction.
+   - Scene 2 (The Context & Payoff): 15 to 30 seconds. The backstory or dialogue that explains the context and reaches the conclusion/punchline.
+   (Optional Scene 3: 8 to 15 seconds if a 3rd scene provides the solution or resolution).
+   The scenes do NOT have to be contiguous; stitching non-contiguous moments creates the highest retention viral clips!
+
+2. CLIP DURATION CONSTRAINT:
+   Combined duration across all scenes in each clip MUST be between {min_length_sec} and {max_length_sec} seconds (typically 25 to 50 seconds total).
+   NEVER output a single 2 to 5 second fragment. Every clip must provide complete context so the audience understands the full story from beginning to end.
+
+3. HINGLISH & AUDIO QUALITY:
+   The video may be in Hinglish (mixed Hindi and English). Evaluate content quality across both languages. STRICTLY AVOID selecting any segments where the speaker stutters, gets stuck, repeats words, or where there is dead air.
+
+4. COMPLETE THOUGHTS:
+   Each segment MUST start at the beginning of a full sentence and end at the end of a complete sentence. DO NOT cut off mid-thought.
+
+5. AVOID CONVERSATIONAL FILLER & META-TALK (MANDATORY):
+   Strictly exclude end-of-clip conversational filler, interviewer meta-talk, or vague wrap-ups (e.g., "Anything more you want me to add?", "Does that make sense?"). The clip must end cleanly on a strong takeaway. Adjust the end timestamp of the final scene to trim these out.
+
+6. Hook Type must be one of: "question", "bold_statement", "surprising_stat", "story_loop", "controversial_thesis".
+7. Score `editorial_potential` realistically from 0.0 to 1.0 based on hook strength and virality.
+8. Keep reasoning brief (1 short sentence) and suggested_callouts concise.
+9. Output JSON directly matching the schema below without any conversational preamble or thinking text.
 
 ## REQUIRED JSON FORMAT
 Return a JSON object:
 {{
   "clips": [
     {{
-      "start_sec": 12.5,
-      "end_sec": 48.0,
       "title": "Short punchy title",
-      "hook_type": "question",
-      "hook_text": "Did you know that...",
-      "editorial_potential": 0.92,
-      "reasoning": "Why this moment was selected",
-      "suggested_callouts": ["Term 1", "Statistic 2"]
+      "hook_type": "bold_statement",
+      "hook_text": "Exact hook quote from Scene 1",
+      "key_takeaway": "What viewer learns by the end",
+      "editorial_potential": 0.95,
+      "reasoning": "Starts with the explosive claim at 45s, then stitches the context and resolution from 56s.",
+      "suggested_callouts": ["Term 1", "Statistic 2"],
+      "segments": [
+        {{ "scene_role": "hook", "start_sec": 48.9, "end_sec": 54.9 }},
+        {{ "scene_role": "context_and_payoff", "start_sec": 56.2, "end_sec": 75.8 }}
+      ]
     }}
   ]
 }}"""
@@ -305,29 +329,110 @@ def select_clips(
         enriched_candidates = []
         clamp_stats = {"none": 0, "sentence_boundary": 0, "scene_boundary": 0, "raw_fallback": 0}
         for raw in raw_clips:
-            start_s = float(raw.get("start_sec", 0.0))
-            end_s = float(raw.get("end_sec", start_s + min_length_sec))
+            segments = raw.get("segments", [])
+            if not segments:
+                s_val = float(raw.get("start_sec", 0.0))
+                e_val = float(raw.get("end_sec", s_val + min_length_sec))
+                segments = [{"start_sec": s_val, "end_sec": e_val}]
+            
+            # --- MULTI-SCENE NARRATIVE EXPANSION ---
+            # If the candidate only has 1 segment (e.g. LLM selected a single quote),
+            # synthesize a 2-scene narrative (Hook + Context & Payoff) from the surrounding dialogue.
+            total_raw_dur = sum(float(s.get("end_sec", 0.0)) - float(s.get("start_sec", 0.0)) for s in segments)
+            if len(segments) == 1 and total_raw_dur < min_length_sec:
+                hook_s = float(segments[0].get("start_sec", 0.0))
+                hook_e = float(segments[0].get("end_sec", hook_s + 6.0))
+                hook_dur = max(4.0, min(10.0, hook_e - hook_s))
+                hook_e = hook_s + hook_dur
+                
+                # Locate hook end in transcript
+                hook_end_idx = 0
+                for i, ts in enumerate(transcript_segments):
+                    if ts.get("end", 0.0) >= hook_e:
+                        hook_end_idx = i
+                        break
+                
+                # Build context scene starting at the segment after the hook
+                needed_context_dur = max(float(min_length_sec) - hook_dur, 16.0)
+                if hook_end_idx + 1 < len(transcript_segments):
+                    context_start = transcript_segments[hook_end_idx + 1].get("start", hook_e + 0.5)
+                else:
+                    context_start = hook_e + 0.5
+                context_end = context_start + needed_context_dur
+                
+                segments = [
+                    {"scene_role": "hook", "start_sec": hook_s, "end_sec": hook_e},
+                    {"scene_role": "context_and_payoff", "start_sec": context_start, "end_sec": context_end},
+                ]
 
-            # Snap LLM timestamps to exact sentence boundaries to prevent mid-sentence cutoffs
-            start_s, end_s = snap_to_sentence_boundaries(
-                start_sec=start_s,
-                end_sec=end_s,
-                transcript_segments=transcript_segments,
-                tolerance_sec=3.0,
-            )
+            processed_segments = []
+            total_duration = 0.0
+            overall_start = None
+            overall_end = None
+            clamp_method = "sentence_boundary"
 
-            # Boundary-aware duration enforcement
-            start_s, end_s, clamp_method = clamp_to_boundary(
-                start_sec=start_s,
-                end_sec=end_s,
-                max_length_sec=max_length_sec,
-                min_length_sec=min_length_sec,
-                transcript_segments=transcript_segments,
-                scenes=scenes,
-            )
+            for seg in segments:
+                start_s = float(seg.get("start_sec", 0.0))
+                end_s = float(seg.get("end_sec", start_s + 6.0))
+
+                # Snap LLM timestamps to exact sentence boundaries with lead-in and release padding
+                start_s, end_s = snap_to_sentence_boundaries(
+                    start_sec=start_s,
+                    end_sec=end_s,
+                    transcript_segments=transcript_segments,
+                    ensure_complete=True,
+                    lead_in_pad=0.15,
+                    tail_release_pad=0.35,
+                )
+
+                # Snap to visual scene cuts if nearby
+                if scenes:
+                    start_s, end_s = snap_to_scene_boundaries(start_s, end_s, scenes, tolerance_sec=1.2)
+
+                # Ensure individual segment has minimum sensible duration of at least 3.5s
+                if (end_s - start_s) < 3.5:
+                    end_s = start_s + 3.5
+
+                processed_segments.append({
+                    "start_sec": round(start_s, 2),
+                    "end_sec": round(end_s, 2),
+                    "scene_role": seg.get("scene_role", "scene"),
+                })
+                total_duration += (end_s - start_s)
+                if overall_start is None or start_s < overall_start:
+                    overall_start = start_s
+                if overall_end is None or end_s > overall_end:
+                    overall_end = end_s
+
+            # Ensure total clip duration satisfies min_length_sec
+            if total_duration < min_length_sec and processed_segments:
+                deficit = float(min_length_sec) - total_duration
+                last_seg = processed_segments[-1]
+                target_end = last_seg["end_sec"] + deficit
+                _, snapped_ext = snap_to_sentence_boundaries(
+                    start_sec=last_seg["end_sec"],
+                    end_sec=target_end,
+                    transcript_segments=transcript_segments,
+                    ensure_complete=True,
+                    lead_in_pad=0.0,
+                    tail_release_pad=0.35,
+                )
+                last_seg["end_sec"] = max(round(target_end, 2), snapped_ext)
+                total_duration = sum(s["end_sec"] - s["start_sec"] for s in processed_segments)
+                overall_end = max(overall_end or 0.0, last_seg["end_sec"])
+
+            # Ensure total clip duration does not exceed max_length_sec
+            if total_duration > max_length_sec and processed_segments:
+                excess = total_duration - float(max_length_sec)
+                longest_seg = max(processed_segments, key=lambda s: s["end_sec"] - s["start_sec"])
+                longest_seg["end_sec"] = round(max(longest_seg["start_sec"] + 5.0, longest_seg["end_sec"] - excess), 2)
+                total_duration = sum(s["end_sec"] - s["start_sec"] for s in processed_segments)
+                overall_end = max(s["end_sec"] for s in processed_segments)
+
             clamp_stats[clamp_method] = clamp_stats.get(clamp_method, 0) + 1
-
-            duration = end_s - start_s
+            duration = total_duration
+            start_s = overall_start if overall_start is not None else 0.0
+            end_s = overall_end if overall_end is not None else start_s + min_length_sec
 
             t_score_data = calculate_transformation_score(
                 clip_duration_sec=duration,
@@ -345,6 +450,7 @@ def select_clips(
             cand = {
                 "start_sec": round(start_s, 2),
                 "end_sec": round(end_s, 2),
+                "segments": processed_segments,
                 "raw_start_sec": round(float(raw.get("start_sec", 0.0)), 2),
                 "raw_end_sec": round(float(raw.get("end_sec", 0.0)), 2),
                 "raw_duration_sec": round(float(raw.get("end_sec", 0.0)) - float(raw.get("start_sec", 0.0)), 2),
