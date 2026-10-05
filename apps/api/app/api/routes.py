@@ -981,20 +981,30 @@ async def rerender_single_clip(
     
     asset_id = "primary"
     selections_file = project_dir / "selections.json"
+    logger.info(f"RERENDER DEBUG: selections_file exists: {selections_file.exists()}")
     if selections_file.exists():
         try:
             sel_data = json.loads(selections_file.read_text(encoding="utf-8"))
             for c in sel_data.get("clips", []):
-                if c.get("clip_id") == clip_id:
-                    asset_id = c.get("asset_id", "primary")
+                c_start = float(c.get("start_sec", -1))
+                c_end = float(c.get("end_sec", -1))
+                c_clip_id = c.get("clip_id")
+                c_asset_id = c.get("asset_id", "primary")
+                logger.info(f"RERENDER DEBUG: checking clip in JSON: start={c_start} end={c_end} clip_id={c_clip_id} asset={c_asset_id} against DB clip: start={clip.start_sec} end={clip.end_sec} clip_id={clip_id}")
+
+                if c_clip_id == clip_id:
+                    asset_id = c_asset_id
+                    logger.info("RERENDER DEBUG: Matched by clip_id")
                     break
                 # Fallback for older projects
-                if abs(float(c.get("start_sec", -1)) - clip.start_sec) < 0.1 and abs(float(c.get("end_sec", -1)) - clip.end_sec) < 0.1:
-                    asset_id = c.get("asset_id", "primary")
+                if abs(c_start - float(clip.start_sec)) < 0.1 and abs(c_end - float(clip.end_sec)) < 0.1:
+                    asset_id = c_asset_id
+                    logger.info("RERENDER DEBUG: Matched by timestamp fallback")
                     break
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"RERENDER DEBUG: JSON parse error: {e}")
 
+    logger.info(f"RERENDER DEBUG: matched asset_id: {asset_id}")
     if asset_id == "primary":
         source_video = project_dir / "source.mp4"
         analysis_file = project_dir / "analysis.json"
@@ -1002,6 +1012,7 @@ async def rerender_single_clip(
         source_video = project_dir / f"source_{asset_id}.mp4"
         analysis_file = project_dir / f"analysis_{asset_id}.json"
 
+    logger.info(f"RERENDER DEBUG: source_video path: {source_video} exists: {source_video.exists()}")
     if not source_video.exists():
         raise HTTPException(status_code=400, detail="Source video missing on disk")
 
@@ -1021,7 +1032,6 @@ async def rerender_single_clip(
 
     if analysis_file.exists():
         try:
-            import json
             analysis_data = json.loads(analysis_file.read_text(encoding="utf-8"))
             segments = analysis_data.get("transcript", {}).get("segments", [])
             focal_timeline = analysis_data.get("face_tracking", {}).get("timeline", [])
