@@ -160,12 +160,25 @@ async def create_project(
 
     risk_label = compute_source_risk(data.rights_basis, data.source_type, bool(data.rights_proof_url))
 
-    # Create project
     source_type = data.source_type
     source_value = data.source_value
+    multi_assets = []
+    
     if data.sources:
         source_type = "multi"
         source_value = f"Multiple Sources ({len(data.sources)})"
+        for src in data.sources:
+            multi_assets.append({"type": src.source_type, "val": src.source_value})
+    elif data.source_type == "local_folder":
+        folder_path = Path(data.source_value)
+        if folder_path.is_dir():
+            from clipforge_core.workers.download import VIDEO_EXTENSIONS
+            video_files = sorted([f for f in folder_path.iterdir() if f.is_file() and f.suffix.lower() in VIDEO_EXTENSIONS])
+            if len(video_files) > 1:
+                source_type = "multi"
+                source_value = f"Local Folder ({len(video_files)} files)"
+                for vf in video_files:
+                    multi_assets.append({"type": "local_folder", "val": str(vf)})
 
     project = Project(
         id=uuid.uuid4(),
@@ -198,13 +211,13 @@ async def create_project(
 
     # Create SourceAsset records
     from clipforge_core.models import SourceAsset
-    if data.sources:
-        for idx, src in enumerate(data.sources):
+    if multi_assets:
+        for src in multi_assets:
             asset = SourceAsset(
                 id=uuid.uuid4(),
                 project_id=project.id,
-                source_type=src.source_type,
-                source_url=src.source_value,
+                source_type=src["type"],
+                source_url=src["val"],
             )
             session.add(asset)
     else:
