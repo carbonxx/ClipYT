@@ -448,11 +448,18 @@ def select_clips(
                 start_s = float(seg.get("start_sec", 0.0))
                 end_s = float(seg.get("end_sec", start_s + 6.0))
                 
-                # Prevent any segment from crossing video boundaries
+                # Determine which asset this segment belongs to based on start_s
+                asset_start_limit = 0.0
+                asset_end_limit = total_source_dur
                 for m in source_mapping:
                     if m["offset_start"] <= start_s <= m["offset_end"]:
-                        end_s = min(end_s, m["offset_end"])
+                        asset_start_limit = m["offset_start"]
+                        asset_end_limit = m["offset_end"]
                         break
+                
+                # Initial clamp before snapping
+                start_s = max(asset_start_limit, start_s)
+                end_s = min(asset_end_limit, max(start_s + 1.0, end_s))
 
                 # Snap LLM timestamps to exact sentence boundaries with lead-in and release padding
                 start_s, end_s = snap_to_sentence_boundaries(
@@ -463,6 +470,10 @@ def select_clips(
                     lead_in_pad=0.15,
                     tail_release_pad=0.35,
                 )
+                
+                # FINAL CLAMP: prevent snap_to_sentence_boundaries from bleeding into adjacent videos
+                start_s = max(asset_start_limit, start_s)
+                end_s = min(asset_end_limit, end_s)
 
                 # Snap to visual scene cuts if nearby
                 if scenes:
