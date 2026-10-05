@@ -978,7 +978,30 @@ async def rerender_single_clip(
 
     project = clip.project
     project_dir = Path(settings.MEDIA_DIR) / str(project.id)
-    source_video = project_dir / "source.mp4"
+    
+    asset_id = "primary"
+    selections_file = project_dir / "selections.json"
+    if selections_file.exists():
+        try:
+            sel_data = json.loads(selections_file.read_text(encoding="utf-8"))
+            for c in sel_data.get("clips", []):
+                if c.get("clip_id") == clip_id:
+                    asset_id = c.get("asset_id", "primary")
+                    break
+                # Fallback for older projects
+                if abs(float(c.get("start_sec", -1)) - clip.start_sec) < 0.1 and abs(float(c.get("end_sec", -1)) - clip.end_sec) < 0.1:
+                    asset_id = c.get("asset_id", "primary")
+                    break
+        except Exception:
+            pass
+
+    if asset_id == "primary":
+        source_video = project_dir / "source.mp4"
+        analysis_file = project_dir / "analysis.json"
+    else:
+        source_video = project_dir / f"source_{asset_id}.mp4"
+        analysis_file = project_dir / f"analysis_{asset_id}.json"
+
     if not source_video.exists():
         raise HTTPException(status_code=400, detail="Source video missing on disk")
 
@@ -992,7 +1015,6 @@ async def rerender_single_clip(
     raw_effects = payload.get("effects", [])
 
     # Load transcript segments and face tracking if available
-    analysis_file = project_dir / "analysis.json"
     segments = []
     focal_x = 0.5
     clip_timeline = None
@@ -1362,6 +1384,10 @@ async def get_clip_voiceover_context(
             sel_data = json.loads(selections_file.read_text(encoding="utf-8"))
             for c in sel_data.get("clips", []):
                 if c.get("clip_id") == clip_id:
+                    asset_id = c.get("asset_id", "primary")
+                    break
+                # Fallback to matching by timestamp since clip_id isn't saved in older selections.json
+                if abs(float(c.get("start_sec", -1)) - clip.start_sec) < 0.1 and abs(float(c.get("end_sec", -1)) - clip.end_sec) < 0.1:
                     asset_id = c.get("asset_id", "primary")
                     break
         except Exception:
