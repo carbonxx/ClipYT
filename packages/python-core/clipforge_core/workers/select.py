@@ -461,11 +461,28 @@ def select_clips(
                     "end_sec": round(end_s, 2),
                     "scene_role": seg.get("scene_role", "scene"),
                 })
-                total_duration += (end_s - start_s)
-                if overall_start is None or start_s < overall_start:
-                    overall_start = start_s
-                if overall_end is None or end_s > overall_end:
-                    overall_end = end_s
+
+            # Merge overlapping segments within the clip to prevent repeated video parts
+            if processed_segments:
+                processed_segments.sort(key=lambda x: x["start_sec"])
+                merged = [processed_segments[0]]
+                for current in processed_segments[1:]:
+                    last = merged[-1]
+                    if current["start_sec"] <= last["end_sec"]:
+                        # Overlap or contiguous, merge them
+                        last["end_sec"] = max(last["end_sec"], current["end_sec"])
+                        last["scene_role"] = f"{last['scene_role']}_and_{current['scene_role']}"
+                    else:
+                        merged.append(current)
+                processed_segments = merged
+                
+            total_duration = sum(s["end_sec"] - s["start_sec"] for s in processed_segments)
+            if processed_segments:
+                overall_start = processed_segments[0]["start_sec"]
+                overall_end = max(s["end_sec"] for s in processed_segments)
+            else:
+                overall_start = 0.0
+                overall_end = 0.0
 
             # Ensure total clip duration satisfies min_length_sec
             if total_duration < min_length_sec and processed_segments:
