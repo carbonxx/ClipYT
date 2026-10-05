@@ -41,6 +41,8 @@ EDITORIAL PRINCIPLES:
 2. High Transformation Potential: Favor moments where original commentary, callouts, and explanatory context add significant value.
 3. Natural Speech Boundaries: Start and end at natural pause points.
 4. Brief Alignment: Strictly adhere to the tone, required mentions, and banned topics in the campaign brief.
+5. NO FILLERS OR DEAD AIR (CRITICAL): Absolutely DO NOT select segments where the speaker says "uh", "um", stutters, repeats words, or has long awkward pauses.
+6. NO META-TALK: Strictly exclude interviewer questions or meta-talk like "Does that make sense?".
 
 You MUST respond with valid JSON matching the requested schema exactly. No markdown fences, no conversational text."""
 
@@ -81,16 +83,30 @@ def _build_selection_prompt(
     segments = transcript.get("segments", [])
     formatted_segments = []
     current_asset = None
+    prev_end = 0.0
     for seg in segments:
         asset_id = seg.get("asset_id", "primary")
         if asset_id != current_asset:
             formatted_segments.append(f"\n--- SOURCE VIDEO: {asset_id} ---")
             current_asset = asset_id
+            prev_end = 0.0 # reset on new video
             
+        import re
         s = seg.get("start", 0.0)
         e = seg.get("end", 0.0)
         t = seg.get("text", "").strip()
-        formatted_segments.append(f"[{s:.1f}s - {e:.1f}s] {t}")
+        
+        if prev_end > 0 and (s - prev_end) >= 2.0:
+            formatted_segments.append(f"[WARNING: DEAD AIR {s - prev_end:.1f}s]")
+            
+        prev_end = e
+        
+        # Simple heuristic for fillers (uh, um, hmm)
+        t_clean = re.sub(r'[^\w\s]', '', t.lower())
+        has_filler = bool(re.search(r'\b(uh|uhh|um|umm|hmm|hmmm)\b', t_clean))
+        warning = " [WARNING: CONTAINS FILLER]" if has_filler else ""
+        
+        formatted_segments.append(f"[{s:.1f}s - {e:.1f}s] {t}{warning}")
 
     transcript_text = "\n".join(formatted_segments)
     total_duration = transcript.get("duration_sec", 0.0)
