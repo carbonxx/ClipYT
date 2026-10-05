@@ -80,7 +80,13 @@ def _build_selection_prompt(
     """Build structured LLM prompt with optional temporal and content focus directives."""
     segments = transcript.get("segments", [])
     formatted_segments = []
+    current_asset = None
     for seg in segments:
+        asset_id = seg.get("asset_id", "primary")
+        if asset_id != current_asset:
+            formatted_segments.append(f"\n--- SOURCE VIDEO: {asset_id} ---")
+            current_asset = asset_id
+            
         s = seg.get("start", 0.0)
         e = seg.get("end", 0.0)
         t = seg.get("text", "").strip()
@@ -118,8 +124,13 @@ def _build_selection_prompt(
 Select up to {clip_count} highlight candidates.
 
 CRITICAL MANDATORY RULES:
-1. MULTI-SCENE NARRATIVE STITCHING (MANDATORY):
-   Every clip MUST be composed of 2 to 3 distinct scenes (`segments`) stitched together to create a dynamic, viral story that does NOT lose context:
+1. MULTI-SOURCE AWARENESS:
+   The transcript may contain multiple source videos separated by "--- SOURCE VIDEO ---". 
+   - You MUST extract at least one highly engaging clip from EACH source video if multiple exist.
+   - Do NOT stitch scenes across different source videos unless they are perfectly related. A single clip should generally be self-contained within the same source video.
+
+2. MULTI-SCENE NARRATIVE STITCHING (MANDATORY):
+   Every clip MUST be composed of 1 to 3 distinct scenes (`segments`) stitched together to create a dynamic, viral story that does NOT lose context:
    - Scene 1 (The Hook): 5 to 10 seconds. The most attention-grabbing quote, controversy, question, or emotional reaction.
    - Scene 2 (The Context & Payoff): 15 to 30 seconds. The backstory or dialogue that explains the context and reaches the conclusion/punchline.
    (Optional Scene 3: 8 to 15 seconds if a 3rd scene provides the solution or resolution).
