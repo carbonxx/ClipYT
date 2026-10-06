@@ -174,8 +174,9 @@ CRITICAL MANDATORY RULES:
 9. Output JSON directly matching the schema below without any conversational preamble or thinking text.
 
 ## REQUIRED JSON FORMAT
-Return a JSON object:
+Return a JSON object. You MUST include a "scratchpad" string at the top level to think step-by-step and plan your selections before outputting the "clips" array.
 {{
+  "scratchpad": "Evaluate the transcript step-by-step. Find the best hooks, ensure they have proper context, verify exact timestamps, and plan the clips to ensure no sentences repeat and flow is perfectly logical.",
   "clips": [
     {{
       "title": "Short punchy title",
