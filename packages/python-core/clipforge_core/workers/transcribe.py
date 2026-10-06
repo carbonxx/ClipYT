@@ -133,6 +133,10 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
         path_or_hf_repo=model_name,
         word_timestamps=True,
         initial_prompt="This is a Hinglish video with mixed Hindi and English speech.",
+        condition_on_previous_text=False,
+        no_speech_threshold=0.6,
+        logprob_threshold=-1.0,
+        compression_ratio_threshold=2.4,
     )
 
     language = result.get("language", "unknown")
@@ -143,26 +147,32 @@ def transcribe_audio(source_path: str, output_dir: str, project_id: str | None =
     full_text_parts = []
     
     for segment in result.get("segments", []):
+        text = segment.get("text", "").strip()
+        if not text:
+            continue
+
         words = []
         for word in segment.get("words", []):
-            words.append(
-                {
-                    "start": round(word["start"], 3),
-                    "end": round(word["end"], 3),
-                    "word": word["word"].strip(),
-                    "probability": round(word.get("probability", 1.0), 3),
-                }
-            )
+            word_text = word.get("word", "").strip()
+            if word_text:
+                words.append(
+                    {
+                        "start": round(word["start"], 3),
+                        "end": round(word["end"], 3),
+                        "word": word_text,
+                        "probability": round(word.get("probability", 1.0), 3),
+                    }
+                )
 
         seg_data = {
             "id": segment.get("id", len(segments)),
             "start": round(segment["start"], 3),
             "end": round(segment["end"], 3),
-            "text": segment["text"].strip(),
+            "text": text,
             "words": words,
         }
         segments.append(seg_data)
-        full_text_parts.append(segment["text"].strip())
+        full_text_parts.append(text)
 
     if project_id:
         try:
