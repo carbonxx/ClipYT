@@ -33,6 +33,12 @@ EditorialTemplateType = Literal[
     "reaction_pip",
     "quote_breakdown",
     "campaign_promotion",
+    "podcast_interview",
+    "testimonial",
+    "educational_explainer",
+    "product_showcase",
+    "storytime_vlog",
+    "motivational_advice",
 ]
 
 

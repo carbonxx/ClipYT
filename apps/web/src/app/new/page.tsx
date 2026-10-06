@@ -17,7 +17,7 @@ export default function NewProjectPage() {
   const [title, setTitle] = useState("");
   const [sourceType, setSourceType] = useState<"youtube_url" | "multi_youtube_url" | "local_folder">("youtube_url");
   const [sourceValue, setSourceValue] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   // Rights Declaration (Mandatory v2)
   const [rightsBasis, setRightsBasis] = useState<RightsBasis>("owned");
@@ -75,28 +75,46 @@ export default function NewProjectPage() {
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setSelectedFile(file);
-    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-    setSelectionBadge({
-      type: "file",
-      name: file.name,
-      detail: `${sizeMb} MB`,
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const fileArray = Array.from(files);
+    
+    setSelectedFiles(prev => {
+      const newFiles = [...prev, ...fileArray];
+      
+      if (newFiles.length === 1) {
+        const file = newFiles[0];
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        setSelectionBadge({
+          type: "file",
+          name: file.name,
+          detail: `${sizeMb} MB`,
+        });
+        
+        if (sourceValue && (sourceValue.includes("\\") || sourceValue.includes("/"))) {
+          const lastSlash = Math.max(sourceValue.lastIndexOf("\\"), sourceValue.lastIndexOf("/"));
+          const dir = sourceValue.slice(0, lastSlash + 1);
+          setSourceValue(dir + file.name);
+        } else {
+          setSourceValue(file.name);
+        }
+      } else {
+        setSelectionBadge({
+          type: "file",
+          name: "Multiple Files",
+          detail: `${newFiles.length} files selected`,
+        });
+        setSourceValue(`${newFiles.length} files selected`);
+      }
+      return newFiles;
     });
-    // If user already had a path like D:\Videos\, update the filename
-    if (sourceValue && (sourceValue.includes("\\") || sourceValue.includes("/"))) {
-      const lastSlash = Math.max(sourceValue.lastIndexOf("\\"), sourceValue.lastIndexOf("/"));
-      const dir = sourceValue.slice(0, lastSlash + 1);
-      setSourceValue(dir + file.name);
-    } else {
-      setSourceValue(file.name);
-    }
   };
 
   const handleFolderSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    setSelectedFiles([]);
     const firstFile = files[0];
     const relativePath = firstFile.webkitRelativePath || "";
     const folderName = relativePath.split("/")[0] || "Selected Folder";
@@ -172,7 +190,7 @@ export default function NewProjectPage() {
     e.preventDefault();
     setError(null);
 
-    if (!sourceValue.trim() && !selectedFile) {
+    if (!sourceValue.trim() && selectedFiles.length === 0) {
       setError("Please enter a YouTube URL, local folder path, or select a file");
       return;
     }
@@ -194,13 +212,21 @@ export default function NewProjectPage() {
       let finalSourceType: "youtube_url" | "local_folder" | "upload" | "multi" = sourceType as any;
       let finalSources = undefined;
       
-      if (sourceType === "local_folder" && selectedFile) {
+      if (sourceType === "local_folder" && selectedFiles.length > 0) {
         try {
-          const uploadRes = await api.uploadFile(selectedFile);
-          finalSourceValue = uploadRes.file_path;
-          finalSourceType = "upload";
+          if (selectedFiles.length === 1) {
+            const uploadRes = await api.uploadFile(selectedFiles[0]);
+            finalSourceValue = uploadRes.file_path;
+            finalSourceType = "upload";
+          } else {
+            const uploadPromises = selectedFiles.map(f => api.uploadFile(f));
+            const results = await Promise.all(uploadPromises);
+            finalSourceType = "multi";
+            finalSourceValue = `Multiple Uploads (${results.length})`;
+            finalSources = results.map(r => ({ source_type: "upload", source_value: r.file_path }));
+          }
         } catch (e: unknown) {
-          setError(e instanceof Error ? e.message : "Failed to upload file");
+          setError(typeof e === 'object' && e !== null && 'message' in e ? String(e.message) : "Failed to upload file(s)");
           setSubmitting(false);
           return;
         }
@@ -218,7 +244,7 @@ export default function NewProjectPage() {
         
         finalSourceType = "multi";
         finalSourceValue = "multi";
-        finalSources = urls.map(u => ({ source_type: "youtube_url", source_url: u }));
+        finalSources = urls.map(u => ({ source_type: "youtube_url", source_value: u }));
       }
 
       const input: CreateProjectInput = {
@@ -388,12 +414,12 @@ export default function NewProjectPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
               {[
-                { id: "explainer", name: "Explainer", desc: "Hook → Source excerpt → Analysis narration → Key takeaway" },
-                { id: "commentary", name: "Commentary", desc: "Thesis statement → Evidence moment → Callouts → Conclusion" },
-                { id: "news_context", name: "News / Context", desc: "Context card → Source quote → 'Why it matters' voiceover" },
-                { id: "reaction_pip", name: "Reaction / PiP", desc: "Creator reaction overlay → Source excerpt in split layout" },
-                { id: "quote_breakdown", name: "Quote Breakdown", desc: "Key quote → Annotation & definitions → Original summary" },
-                { id: "campaign_promotion", name: "Campaign Promo", desc: "Brand disclosure → Permitted source → Call to Action" },
+                { id: "podcast_interview", name: "Podcast / Interview", desc: "Deep dialogue & engaging banter" },
+                { id: "testimonial", name: "Testimonial / Review", desc: "Customer feedback & product experiences" },
+                { id: "educational_explainer", name: "Educational / Explainer", desc: "Teaching a concept or breaking down facts" },
+                { id: "product_showcase", name: "Product Showcase", desc: "Highlighting features & benefits" },
+                { id: "storytime_vlog", name: "Storytime / Vlog", desc: "Personal narrative & authentic moments" },
+                { id: "motivational_advice", name: "Motivational / Advice", desc: "Inspiring quotes & thought leadership" },
               ].map((tpl) => (
                 <button
                   key={tpl.id}
@@ -480,6 +506,7 @@ export default function NewProjectPage() {
                   {/* Hidden browser native file inputs */}
                   <input
                     type="file"
+                    multiple
                     ref={fileInputRef}
                     onChange={handleFileSelected}
                     accept="video/mp4,video/mkv,video/mov,video/webm,video/avi,video/*"

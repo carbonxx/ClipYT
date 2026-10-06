@@ -51,6 +51,12 @@ def calculate_transformation_score(
         "reaction_pip": 23,
         "quote_breakdown": 18,
         "campaign_promotion": 16,
+        "podcast_interview": 22,
+        "testimonial": 18,
+        "educational_explainer": 22,
+        "product_showcase": 23,
+        "storytime_vlog": 18,
+        "motivational_advice": 18,
     }
     base_commentary = template_commentary_weights.get(editorial_template, 18)
     score_commentary = base_commentary if has_commentary else 8
@@ -59,7 +65,7 @@ def calculate_transformation_score(
     score_visual = 0
     if has_visual_reframing:
         score_visual += 12
-    if editorial_template in ("reaction_pip", "news_context", "explainer"):
+    if editorial_template in ("reaction_pip", "news_context", "explainer", "product_showcase", "educational_explainer"):
         score_visual += 8
     else:
         score_visual += 5

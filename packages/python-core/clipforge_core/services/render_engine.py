@@ -117,7 +117,7 @@ def build_render_manifest(
     ed_template = editorial_template
     if ed_template == "campaign_promo":
         ed_template = "campaign_promotion"
-    if ed_template not in ["explainer", "commentary", "news_context", "reaction_pip", "quote_breakdown", "campaign_promotion"]:
+    if ed_template not in ["explainer", "commentary", "news_context", "reaction_pip", "quote_breakdown", "campaign_promotion", "podcast_interview", "testimonial", "educational_explainer", "product_showcase", "storytime_vlog", "motivational_advice"]:
         ed_template = "explainer"
 
     # Map transformation breakdown to canonical schema keys with strict range bounds

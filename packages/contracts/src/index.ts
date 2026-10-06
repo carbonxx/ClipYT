@@ -21,7 +21,13 @@ export type EditorialTemplate =
   | "news_context"
   | "reaction_pip"
   | "quote_breakdown"
-  | "campaign_promotion";
+  | "campaign_promotion"
+  | "podcast_interview"
+  | "testimonial"
+  | "educational_explainer"
+  | "product_showcase"
+  | "storytime_vlog"
+  | "motivational_advice";
 
 export type PipelineStage =
   | "ingest"
